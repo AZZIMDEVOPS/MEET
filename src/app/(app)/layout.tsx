@@ -1,4 +1,5 @@
 import { AppShell } from '@/components/navigation/AppShell'
+import { InstallAppPrompt } from '@/components/ui/InstallAppPrompt'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       }}
     >
       {children}
+      <InstallAppPrompt />
     </AppShell>
   )
 }

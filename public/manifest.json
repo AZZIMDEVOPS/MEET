@@ -1,0 +1,19 @@
+{
+  "name": "MEET — People. Places. Experiences.",
+  "short_name": "MEET",
+  "description": "Next-generation social discovery platform for people, places, and experiences.",
+  "start_url": "/discover",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#2563EB",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

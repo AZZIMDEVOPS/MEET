@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MEET</string>
+    <string name="title_activity_main">MEET</string>
+    <string name="package_name">com.regnl.meet</string>
+    <string name="custom_url_scheme">com.regnl.meet</string>
+</resources>
