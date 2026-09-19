@@ -69,21 +69,33 @@ export default function LoginPage() {
     setGoogleLoading(true)
     try {
       const supabase = createClient()
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/discover` : undefined,
+          skipBrowserRedirect: true,
         },
       })
       if (error) throw error
+
+      if (data?.url) {
+        // Preflight check so users are not dumped on a raw Supabase 400 JSON screen
+        try {
+          const preflight = await fetch(data.url, { method: 'GET', redirect: 'manual' })
+          if (preflight.status === 400) {
+            const body = await preflight.json().catch(() => ({}))
+            if (body.msg?.includes('not enabled') || body.error_code === 'validation_failed') {
+              setError('Google Sign-In is not enabled yet in your Supabase project. Please log in using your Email & Password above.')
+              return
+            }
+          }
+        } catch {
+          // If preflight is blocked by CORS, proceed to normal redirect
+        }
+        window.location.assign(data.url)
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Google sign in failed.'
-      // If OAuth keys aren't configured yet or in demo mode, proceed gracefully to discover as demo Google user
-      if (msg.includes('placeholder') || msg.includes('fetch') || msg.includes('provider is not enabled') || msg.includes('URL')) {
-        await new Promise((r) => setTimeout(r, 600))
-        router.push('/discover')
-        return
-      }
       setError(msg)
     } finally {
       setGoogleLoading(false)

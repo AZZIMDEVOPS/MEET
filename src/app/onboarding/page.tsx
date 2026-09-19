@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, ArrowLeft, Camera, MapPin, Check, Users, Globe, Calendar, Briefcase, Activity, Sparkles, Heart } from 'lucide-react'
 import { MeetLogo } from '@/components/ui/MeetLogo'
 import { CategoryIcon } from '@/components/ui/CategoryIcon'
+import { createClient } from '@/lib/supabase/client'
 
 const INTERESTS = [
   'Technology', 'Photography', 'Music', 'Business', 'Entrepreneurship',
@@ -36,6 +37,25 @@ export default function OnboardingPage() {
   const [bio, setBio] = useState('Product designer and explorer based in Nairobi. Passionate about technology, art, and vibrant local experiences.')
   const [city, setCity] = useState('Nairobi, Kenya')
   const [loading, setLoading] = useState(false)
+
+  // Prefill user details if authenticated
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const meta = user.user_metadata || {}
+          if (meta.first_name) setFirstName(meta.first_name)
+          if (meta.last_name) setLastName(meta.last_name)
+          if (meta.username) setUsername(meta.username)
+        }
+      } catch {
+        // Fallback for offline or demo testing
+      }
+    }
+    loadUser()
+  }, [])
 
   function toggleInterest(interest: string) {
     setSelectedInterests((prev) =>
@@ -83,8 +103,26 @@ export default function OnboardingPage() {
   async function handleFinish() {
     if (!currentStepValidation.valid) return
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 800))
-    router.push('/discover')
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const fullName = `${firstName.trim()} ${lastName.trim()}`
+        await supabase.from('profiles').upsert({
+          id: user.id,
+          username: username.trim().toLowerCase(),
+          full_name: fullName,
+          bio: bio.trim(),
+          city: city.trim(),
+          updated_at: new Date().toISOString(),
+        })
+      }
+    } catch (e) {
+      console.warn('Profile sync error:', e)
+    } finally {
+      await new Promise((r) => setTimeout(r, 600))
+      router.push('/discover')
+    }
   }
 
   function handleNext() {
