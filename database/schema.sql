@@ -77,6 +77,10 @@ CREATE TABLE IF NOT EXISTS posts (
   content       TEXT NOT NULL CHECK (char_length(content) <= 5000),
   post_type     TEXT NOT NULL DEFAULT 'text' CHECK (post_type IN ('text','image','video','audio','poll')),
   visibility    TEXT NOT NULL DEFAULT 'public' CHECK (visibility IN ('public','connections','private')),
+  media_url     TEXT,
+  location      TEXT,
+  category      TEXT,
+  tags          TEXT[] DEFAULT '{}',
   likes_count   INTEGER NOT NULL DEFAULT 0,
   comments_count INTEGER NOT NULL DEFAULT 0,
   shares_count  INTEGER NOT NULL DEFAULT 0,
@@ -393,55 +397,92 @@ ALTER TABLE blocks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE adult_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE adult_matches ENABLE ROW LEVEL SECURITY;
 
+-- ─── ROW LEVEL SECURITY POLICIES ─────────────────────────────────────────────
+
 -- Profiles: public read, own write
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON profiles;
 CREATE POLICY "Public profiles are viewable by everyone" ON profiles FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
 
--- Posts: public read for public posts, own write
-CREATE POLICY "Public posts viewable by everyone" ON posts FOR SELECT USING (visibility = 'public' OR author_id = auth.uid());
+-- Posts: public read, own write
+DROP POLICY IF EXISTS "Public posts viewable by everyone" ON posts;
+CREATE POLICY "Public posts viewable by everyone" ON posts FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Users can insert own posts" ON posts;
 CREATE POLICY "Users can insert own posts" ON posts FOR INSERT WITH CHECK (author_id = auth.uid());
+
+DROP POLICY IF EXISTS "Users can update own posts" ON posts;
 CREATE POLICY "Users can update own posts" ON posts FOR UPDATE USING (author_id = auth.uid());
+
+DROP POLICY IF EXISTS "Users can delete own posts" ON posts;
 CREATE POLICY "Users can delete own posts" ON posts FOR DELETE USING (author_id = auth.uid());
 
 -- Events: public read, host write
+DROP POLICY IF EXISTS "Events viewable by everyone" ON events;
 CREATE POLICY "Events viewable by everyone" ON events FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Users can create events" ON events;
 CREATE POLICY "Users can create events" ON events FOR INSERT WITH CHECK (host_id = auth.uid());
+
+DROP POLICY IF EXISTS "Hosts can update events" ON events;
 CREATE POLICY "Hosts can update events" ON events FOR UPDATE USING (host_id = auth.uid());
+
+DROP POLICY IF EXISTS "Hosts can delete events" ON events;
 CREATE POLICY "Hosts can delete events" ON events FOR DELETE USING (host_id = auth.uid());
 
 -- Communities: public read, member write
-CREATE POLICY "Communities viewable by everyone" ON communities FOR SELECT USING (NOT is_private OR id IN (SELECT community_id FROM community_members WHERE profile_id = auth.uid()));
+DROP POLICY IF EXISTS "Communities viewable by everyone" ON communities;
+CREATE POLICY "Communities viewable by everyone" ON communities FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Users can create communities" ON communities;
 CREATE POLICY "Users can create communities" ON communities FOR INSERT WITH CHECK (creator_id = auth.uid());
+
+DROP POLICY IF EXISTS "Admins can update communities" ON communities;
 CREATE POLICY "Admins can update communities" ON communities FOR UPDATE USING (creator_id = auth.uid() OR auth.uid() IN (SELECT profile_id FROM community_members WHERE community_id = id AND role IN ('owner','admin')));
 
 -- Messages: conversation members only
+DROP POLICY IF EXISTS "Users can see their messages" ON messages;
 CREATE POLICY "Users can see their messages" ON messages FOR SELECT USING (
   conversation_id IN (SELECT conversation_id FROM conversation_members WHERE profile_id = auth.uid())
 );
+
+DROP POLICY IF EXISTS "Users can send messages" ON messages;
 CREATE POLICY "Users can send messages" ON messages FOR INSERT WITH CHECK (
   sender_id = auth.uid() AND
   conversation_id IN (SELECT conversation_id FROM conversation_members WHERE profile_id = auth.uid())
 );
 
 -- Notifications: own only
+DROP POLICY IF EXISTS "Users see own notifications" ON notifications;
 CREATE POLICY "Users see own notifications" ON notifications FOR SELECT USING (user_id = auth.uid());
+
+DROP POLICY IF EXISTS "System can insert notifications" ON notifications;
 CREATE POLICY "System can insert notifications" ON notifications FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Users can mark own notifications read" ON notifications;
 CREATE POLICY "Users can mark own notifications read" ON notifications FOR UPDATE USING (user_id = auth.uid());
 
 -- Adult profiles: self only
+DROP POLICY IF EXISTS "Adults see their own adult profile" ON adult_profiles;
 CREATE POLICY "Adults see their own adult profile" ON adult_profiles FOR SELECT USING (profile_id = auth.uid());
+
+DROP POLICY IF EXISTS "Adults can insert their profile" ON adult_profiles;
 CREATE POLICY "Adults can insert their profile" ON adult_profiles FOR INSERT WITH CHECK (profile_id = auth.uid());
+
+DROP POLICY IF EXISTS "Adults can update their profile" ON adult_profiles;
 CREATE POLICY "Adults can update their profile" ON adult_profiles FOR UPDATE USING (profile_id = auth.uid());
 
 -- ─── STORAGE BUCKETS ─────────────────────────────────────────────────────────
--- Run these in Supabase Dashboard > Storage
-
--- INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', true);
--- INSERT INTO storage.buckets (id, name, public) VALUES ('covers', 'covers', true);
--- INSERT INTO storage.buckets (id, name, public) VALUES ('posts', 'posts', true);
--- INSERT INTO storage.buckets (id, name, public) VALUES ('events', 'events', true);
--- INSERT INTO storage.buckets (id, name, public) VALUES ('communities', 'communities', true);
--- INSERT INTO storage.buckets (id, name, public) VALUES ('messages', 'messages', false);
+INSERT INTO storage.buckets (id, name, public) VALUES 
+  ('avatars', 'avatars', true),
+  ('covers', 'covers', true),
+  ('posts', 'posts', true),
+  ('events', 'events', true),
+  ('communities', 'communities', true),
+  ('messages', 'messages', false)
+ON CONFLICT (id) DO NOTHING;
 
 -- ─── SEED INTERESTS ──────────────────────────────────────────────────────────
 INSERT INTO interests (name, slug, icon, category, color) VALUES
@@ -466,50 +507,3 @@ INSERT INTO interests (name, slug, icon, category, color) VALUES
   ('Books', 'books', '📖', 'education', '#8B5CF6'),
   ('Wellness', 'wellness', '🧘', 'lifestyle', '#34D399')
 ON CONFLICT (name) DO NOTHING;
-
--- ─── POSTS & REAL-TIME FEED ──────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS posts (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  author_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  content TEXT NOT NULL,
-  media_url TEXT,
-  location TEXT,
-  category TEXT,
-  tags TEXT[] DEFAULT '{}',
-  likes_count INT DEFAULT 0,
-  comments_count INT DEFAULT 0,
-  shares_count INT DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS post_comments (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-  author_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  content TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS post_likes (
-  post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  PRIMARY KEY (post_id, user_id)
-);
-
-ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE post_comments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE post_likes ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Posts are viewable by everyone" ON posts FOR SELECT USING (true);
-CREATE POLICY "Authenticated users can create posts" ON posts FOR INSERT WITH CHECK (auth.uid() = author_id);
-CREATE POLICY "Users can update own posts" ON posts FOR UPDATE USING (auth.uid() = author_id);
-CREATE POLICY "Users can delete own posts" ON posts FOR DELETE USING (auth.uid() = author_id);
-
-CREATE POLICY "Comments are viewable by everyone" ON post_comments FOR SELECT USING (true);
-CREATE POLICY "Authenticated users can comment" ON post_comments FOR INSERT WITH CHECK (auth.uid() = author_id);
-
-CREATE POLICY "Likes are viewable by everyone" ON post_likes FOR SELECT USING (true);
-CREATE POLICY "Authenticated users can like" ON post_likes FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can unlike" ON post_likes FOR DELETE USING (auth.uid() = user_id);
