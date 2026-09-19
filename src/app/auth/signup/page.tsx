@@ -142,7 +142,7 @@ export default function SignupPage() {
           if (preflight.status === 400) {
             const body = await preflight.json().catch(() => ({}))
             if (body.msg?.includes('not enabled') || body.error_code === 'validation_failed') {
-              setError('Google Sign-In is not enabled yet in your Supabase project. Please complete the quick fields above to register with Email & Password instantly.')
+              setError('Google Sign-In is not configured yet in your Supabase project. Please complete the fields below to register with Email & Password instantly.')
               return
             }
           }
