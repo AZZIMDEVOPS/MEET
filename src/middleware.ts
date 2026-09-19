@@ -3,7 +3,7 @@ import { createClient } from "@/utils/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
   try {
-    return createClient(request);
+    return await createClient(request);
   } catch (err) {
     console.error("Middleware invocation error (safe fallback):", err);
     return NextResponse.next({

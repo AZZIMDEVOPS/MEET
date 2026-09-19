@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ArrowLeft, Camera, MapPin, Check, X, Users, Globe, Calendar, Briefcase, Activity, Sparkles, Heart } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Camera, MapPin, Check, Users, Globe, Calendar, Briefcase, Activity, Sparkles, Heart } from 'lucide-react'
 import { MeetLogo } from '@/components/ui/MeetLogo'
 import { CategoryIcon } from '@/components/ui/CategoryIcon'
 
