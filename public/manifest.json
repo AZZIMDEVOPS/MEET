@@ -2,7 +2,7 @@
   "name": "MEET — People. Places. Experiences.",
   "short_name": "MEET",
   "description": "Next-generation social discovery platform for people, places, and experiences.",
-  "start_url": "/discover",
+  "start_url": "/auth/login",
   "scope": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react'
 import { MeetLogo } from '@/components/ui/MeetLogo'
 import { GoogleIcon } from '@/components/ui/GoogleIcon'
@@ -85,19 +85,23 @@ export default function LoginPage() {
   }
 
   return (
-    <>
-      {/* Splash screen when entering login flow */}
-      {showSplash && (
-        <SplashScreen duration={1500} onFinish={() => setShowSplash(false)} />
-      )}
-
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12 relative overflow-hidden">
+    <AnimatePresence mode="wait">
+      {showSplash ? (
+        <SplashScreen
+          key="splash-screen"
+          duration={2200}
+          onFinish={() => setShowSplash(false)}
+        />
+      ) : (
         <motion.div
-          className="relative z-10 w-full max-w-md"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          key="login-form"
+          className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12 relative overflow-hidden"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
         >
+          <div className="relative z-10 w-full max-w-md">
           {/* Logo */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-block mb-3">
@@ -253,8 +257,9 @@ export default function LoginPage() {
               MEET {APP_VERSION}
             </span>
           </div>
+          </div>
         </motion.div>
-      </div>
-    </>
+      )}
+    </AnimatePresence>
   )
 }
