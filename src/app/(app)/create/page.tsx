@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Image, Calendar, Users, PenSquare, Check, Globe } from 'lucide-react'
+import { Image, Calendar, Users, PenSquare, Check, Globe, AlertTriangle } from 'lucide-react'
 
 export default function CreatePage() {
   const [activeTab, setActiveTab] = useState<'post' | 'event' | 'community'>('post')
+  const [formError, setFormError] = useState<string | null>(null)
 
   // Post form state
   const [postContent, setPostContent] = useState('')
@@ -25,9 +26,32 @@ export default function CreatePage() {
   const [commCategory, setCommCategory] = useState('Technology')
   const [commDesc, setCommDesc] = useState('')
 
+  // Reactive validation checks
+  const isPostValid = postContent.trim().length >= 5 && postContent.length <= 500
+
+  const isEventValid = Boolean(
+    eventTitle.trim().length >= 5 &&
+    eventDate &&
+    new Date(eventDate).getTime() > Date.now() &&
+    eventVenue.trim().length >= 3
+  )
+
+  const isCommValid = Boolean(
+    commName.trim().length >= 3 &&
+    commDesc.trim().length >= 15
+  )
+
   async function handlePostSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!postContent.trim()) return
+    setFormError(null)
+    if (postContent.trim().length < 5) {
+      setFormError('Post content must be at least 5 characters long.')
+      return
+    }
+    if (postContent.length > 500) {
+      setFormError('Post content cannot exceed 500 characters.')
+      return
+    }
     setSubmitting(true)
     await new Promise((r) => setTimeout(r, 600))
     setSubmitted(true)
@@ -36,7 +60,23 @@ export default function CreatePage() {
 
   async function handleEventSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!eventTitle.trim()) return
+    setFormError(null)
+    if (eventTitle.trim().length < 5) {
+      setFormError('Event title must be at least 5 characters.')
+      return
+    }
+    if (!eventDate) {
+      setFormError('Please select a scheduled date and time for this event.')
+      return
+    }
+    if (new Date(eventDate).getTime() <= Date.now()) {
+      setFormError('Event date and time must be set to a future date.')
+      return
+    }
+    if (eventVenue.trim().length < 3) {
+      setFormError('Please enter a valid venue or location (min. 3 characters).')
+      return
+    }
     setSubmitting(true)
     await new Promise((r) => setTimeout(r, 600))
     setSubmitted(true)
@@ -45,7 +85,15 @@ export default function CreatePage() {
 
   async function handleCommSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!commName.trim()) return
+    setFormError(null)
+    if (commName.trim().length < 3) {
+      setFormError('Community name must be at least 3 characters.')
+      return
+    }
+    if (commDesc.trim().length < 15) {
+      setFormError('Community description must be at least 15 characters to explain the group mission.')
+      return
+    }
     setSubmitting(true)
     await new Promise((r) => setTimeout(r, 600))
     setSubmitted(true)
@@ -54,9 +102,13 @@ export default function CreatePage() {
 
   function resetForm() {
     setSubmitted(false)
+    setFormError(null)
     setPostContent('')
     setEventTitle('')
+    setEventDate('')
+    setEventVenue('')
     setCommName('')
+    setCommDesc('')
   }
 
   return (
@@ -119,6 +171,17 @@ export default function CreatePage() {
       ) : (
         /* Forms */
         <div className="meet-card p-6 shadow-sm">
+          {formError && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2 mb-5"
+            >
+              <AlertTriangle size={16} className="text-red-600 flex-shrink-0" />
+              <span>{formError}</span>
+            </motion.div>
+          )}
+
           {activeTab === 'post' && (
             <form onSubmit={handlePostSubmit} className="space-y-4">
               {/* Author */}
@@ -139,7 +202,7 @@ export default function CreatePage() {
 
               <textarea
                 value={postContent}
-                onChange={(e) => setPostContent(e.target.value)}
+                onChange={(e) => { setPostContent(e.target.value); setFormError(null) }}
                 placeholder="What would you like to share with your network?"
                 rows={5}
                 className="meet-input resize-none text-base"
@@ -167,13 +230,13 @@ export default function CreatePage() {
               </div>
 
               <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                <span className={`text-xs ${postContent.length > 450 ? 'text-amber-500' : 'text-slate-400'}`}>
-                  {postContent.length}/500
+                <span className={`text-xs ${postContent.length > 450 ? 'text-amber-500 font-semibold' : postContent.trim().length < 5 ? 'text-slate-400' : 'text-emerald-600 font-medium'}`}>
+                  {postContent.trim().length < 5 ? `${postContent.length}/500 (min. 5 chars)` : `${postContent.length}/500`}
                 </span>
                 <motion.button
                   type="submit"
-                  disabled={!postContent.trim() || submitting || postContent.length > 500}
-                  className="btn-blue py-2.5 px-6 disabled:opacity-40 font-semibold text-sm"
+                  disabled={!isPostValid || submitting}
+                  className="btn-blue py-2.5 px-6 disabled:opacity-40 disabled:cursor-not-allowed font-semibold text-sm"
                   whileTap={{ scale: 0.97 }}
                 >
                   {submitting ? 'Publishing...' : 'Share Post'}
@@ -186,22 +249,25 @@ export default function CreatePage() {
             <form onSubmit={handleEventSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Event Title
+                  Event Title <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={eventTitle}
-                  onChange={(e) => setEventTitle(e.target.value)}
+                  onChange={(e) => { setEventTitle(e.target.value); setFormError(null) }}
                   placeholder="e.g. Nairobi AI & Cloud Builders Meetup"
                   className="meet-input"
                   required
                 />
+                {eventTitle.trim().length > 0 && eventTitle.trim().length < 5 && (
+                  <p className="text-[11px] text-amber-600 mt-1">Title must be at least 5 characters.</p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Category
+                    Category <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={eventCategory}
@@ -215,29 +281,37 @@ export default function CreatePage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Date & Time
+                    Date & Time <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="datetime-local"
                     value={eventDate}
-                    onChange={(e) => setEventDate(e.target.value)}
+                    onChange={(e) => { setEventDate(e.target.value); setFormError(null) }}
                     className="meet-input"
+                    required
                   />
+                  {eventDate && new Date(eventDate).getTime() <= Date.now() && (
+                    <p className="text-[11px] text-amber-600 mt-1">Date and time must be set in the future.</p>
+                  )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Venue / Location
+                    Venue / Location <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={eventVenue}
-                    onChange={(e) => setEventVenue(e.target.value)}
-                    placeholder="e.g. iHub, Nairobi"
+                    onChange={(e) => { setEventVenue(e.target.value); setFormError(null) }}
+                    placeholder="e.g. iHub, Senteu Plaza, Nairobi"
                     className="meet-input"
+                    required
                   />
+                  {eventVenue.trim().length > 0 && eventVenue.trim().length < 3 && (
+                    <p className="text-[11px] text-amber-600 mt-1">Venue must be at least 3 characters.</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
@@ -259,8 +333,8 @@ export default function CreatePage() {
               <div className="flex justify-end pt-3 border-t border-slate-100">
                 <button
                   type="submit"
-                  disabled={!eventTitle.trim() || submitting}
-                  className="btn-blue py-2.5 px-6 disabled:opacity-40 font-semibold text-sm"
+                  disabled={!isEventValid || submitting}
+                  className="btn-blue py-2.5 px-6 disabled:opacity-40 disabled:cursor-not-allowed font-semibold text-sm"
                 >
                   {submitting ? 'Creating...' : 'Create Event'}
                 </button>
@@ -272,21 +346,24 @@ export default function CreatePage() {
             <form onSubmit={handleCommSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Community Name
+                  Community Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={commName}
-                  onChange={(e) => setCommName(e.target.value)}
+                  onChange={(e) => { setCommName(e.target.value); setFormError(null) }}
                   placeholder="e.g. Nairobi Frontend Developers"
                   className="meet-input"
                   required
                 />
+                {commName.trim().length > 0 && commName.trim().length < 3 && (
+                  <p className="text-[11px] text-amber-600 mt-1">Community name must be at least 3 characters.</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Category
+                  Category <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={commCategory}
@@ -301,22 +378,28 @@ export default function CreatePage() {
 
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Description
+                  Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={commDesc}
-                  onChange={(e) => setCommDesc(e.target.value)}
-                  placeholder="Describe your community mission, members, and regular activities..."
+                  onChange={(e) => { setCommDesc(e.target.value); setFormError(null) }}
+                  placeholder="Describe your community mission, members, and regular activities (min. 15 characters)..."
                   rows={4}
                   className="meet-input resize-none"
+                  required
                 />
+                <div className="flex justify-between items-center text-xs mt-1">
+                  <span className={commDesc.trim().length < 15 ? 'text-amber-600 font-medium' : 'text-emerald-600 font-semibold'}>
+                    {commDesc.trim().length < 15 ? `Minimum 15 characters required (${commDesc.trim().length}/15)` : 'Description meets requirements'}
+                  </span>
+                </div>
               </div>
 
               <div className="flex justify-end pt-3 border-t border-slate-100">
                 <button
                   type="submit"
-                  disabled={!commName.trim() || submitting}
-                  className="btn-blue py-2.5 px-6 disabled:opacity-40 font-semibold text-sm"
+                  disabled={!isCommValid || submitting}
+                  className="btn-blue py-2.5 px-6 disabled:opacity-40 disabled:cursor-not-allowed font-semibold text-sm"
                 >
                   {submitting ? 'Creating...' : 'Create Community'}
                 </button>

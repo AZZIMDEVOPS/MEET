@@ -14,6 +14,13 @@ export default function MeetAndMeatLayout({ children }: { children: React.ReactN
   const [safetyAgreed, setSafetyAgreed] = useState(false)
   const [error, setError] = useState('')
 
+  const isAgeGateValid = Boolean(
+    dob &&
+    ((Date.now() - new Date(dob).getTime()) / (1000 * 60 * 60 * 24 * 365.25) >= 18) &&
+    agreed &&
+    safetyAgreed
+  )
+
   function handleVerify() {
     setError('')
     if (!dob) { setError('Please enter your date of birth.'); return }
@@ -105,7 +112,8 @@ export default function MeetAndMeatLayout({ children }: { children: React.ReactN
 
             <motion.button
               onClick={handleVerify}
-              className="btn-blue w-full py-3.5 rounded-xl font-bold text-sm"
+              disabled={!isAgeGateValid}
+              className="btn-blue w-full py-3.5 rounded-xl font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed"
               whileTap={{ scale: 0.98 }}
             >
               Enter MEET & MEAT <ArrowRight size={16} />

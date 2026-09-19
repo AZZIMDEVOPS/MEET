@@ -9,6 +9,7 @@ import { MeetLogo } from '@/components/ui/MeetLogo'
 import { GoogleIcon } from '@/components/ui/GoogleIcon'
 import { SplashScreen, APP_VERSION } from '@/components/ui/SplashScreen'
 import { createClient } from '@/lib/supabase/client'
+import { isValidEmail } from '@/lib/utils'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -23,17 +24,36 @@ export default function LoginPage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+
+    const trimmedEmail = email.trim()
+    if (!trimmedEmail) {
+      setError('Please enter your email address.')
+      return
+    }
+    if (!isValidEmail(trimmedEmail)) {
+      setError('Please enter a valid email address (e.g. name@example.com).')
+      return
+    }
+    if (!password) {
+      setError('Please enter your password.')
+      return
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.')
+      return
+    }
+
     setLoading(true)
 
     try {
       const supabase = createClient()
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const { error } = await supabase.auth.signInWithPassword({ email: trimmedEmail, password })
       if (error) throw error
       router.push('/discover')
       router.refresh()
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Sign in failed.'
-      if (msg.includes('placeholder') || msg.includes('fetch') || msg.includes('Invalid login credentials')) {
+      if (msg.includes('placeholder') || msg.includes('fetch')) {
         router.push('/discover')
         return
       }
@@ -205,8 +225,8 @@ export default function LoginPage() {
 
               <motion.button
                 type="submit"
-                disabled={loading || googleLoading}
-                className="btn-blue w-full justify-center py-3.5 mt-2 font-bold text-sm"
+                disabled={loading || googleLoading || !isValidEmail(email.trim()) || password.length < 6}
+                className="btn-blue w-full justify-center py-3.5 mt-2 font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed"
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
               >

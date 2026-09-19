@@ -28,10 +28,13 @@ const TOTAL_STEPS = 7
 export default function OnboardingPage() {
   const router = useRouter()
   const [step, setStep] = useState(0)
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([])
-  const [lookingFor, setLookingFor] = useState<string[]>([])
-  const [bio, setBio] = useState('')
-  const [city, setCity] = useState('')
+  const [firstName, setFirstName] = useState('Ian')
+  const [lastName, setLastName] = useState('Kariuki')
+  const [username, setUsername] = useState('ian.kariuki')
+  const [selectedInterests, setSelectedInterests] = useState<string[]>(['Technology', 'Photography', 'Business'])
+  const [lookingFor, setLookingFor] = useState<string[]>(['friends', 'communities'])
+  const [bio, setBio] = useState('Product designer and explorer based in Nairobi. Passionate about technology, art, and vibrant local experiences.')
+  const [city, setCity] = useState('Nairobi, Kenya')
   const [loading, setLoading] = useState(false)
 
   function toggleInterest(interest: string) {
@@ -46,10 +49,51 @@ export default function OnboardingPage() {
     )
   }
 
+  function getStepValidation(stepIdx: number): { valid: boolean; hint?: string } {
+    switch (stepIdx) {
+      case 0:
+        if (firstName.trim().length < 2) return { valid: false, hint: 'First name must be at least 2 characters.' }
+        if (lastName.trim().length < 2) return { valid: false, hint: 'Last name must be at least 2 characters.' }
+        return { valid: true }
+      case 1:
+        if (username.trim().length < 3) return { valid: false, hint: 'Username must be at least 3 characters.' }
+        if (!/^[a-zA-Z0-9._]+$/.test(username.trim())) return { valid: false, hint: 'Username can only contain letters, numbers, dots, and underscores.' }
+        return { valid: true }
+      case 2:
+        return { valid: true }
+      case 3:
+        if (bio.trim().length < 10) return { valid: false, hint: `Bio must be at least 10 characters (${bio.trim().length}/10 entered).` }
+        return { valid: true }
+      case 4:
+        if (selectedInterests.length < 3) return { valid: false, hint: `Select at least 3 interests (${selectedInterests.length}/3 selected).` }
+        return { valid: true }
+      case 5:
+        if (city.trim().length < 2) return { valid: false, hint: 'Please specify your city or location.' }
+        return { valid: true }
+      case 6:
+        if (lookingFor.length < 1) return { valid: false, hint: 'Please select at least 1 goal to complete onboarding.' }
+        return { valid: true }
+      default:
+        return { valid: true }
+    }
+  }
+
+  const currentStepValidation = getStepValidation(step)
+
   async function handleFinish() {
+    if (!currentStepValidation.valid) return
     setLoading(true)
     await new Promise((r) => setTimeout(r, 800))
     router.push('/discover')
+  }
+
+  function handleNext() {
+    if (!currentStepValidation.valid) return
+    if (step === TOTAL_STEPS - 1) {
+      handleFinish()
+    } else {
+      setStep((s) => s + 1)
+    }
   }
 
   const progress = ((step + 1) / TOTAL_STEPS) * 100
@@ -59,11 +103,27 @@ export default function OnboardingPage() {
     <motion.div key="step0" className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
       <div>
         <h2 className="text-2xl font-black text-slate-900 mb-1">What is your name?</h2>
-        <p className="text-slate-500 text-sm">Let us start with the basics.</p>
+        <p className="text-slate-500 text-sm">Please provide your real first and last name to verify your identity on MEET.</p>
       </div>
       <div className="space-y-3">
-        <input className="meet-input" placeholder="First name" defaultValue="Ian" />
-        <input className="meet-input" placeholder="Last name" defaultValue="Kariuki" />
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">First Name</label>
+          <input
+            className="meet-input"
+            placeholder="First name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">Last Name</label>
+          <input
+            className="meet-input"
+            placeholder="Last name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+          />
+        </div>
       </div>
     </motion.div>,
 
@@ -71,13 +131,18 @@ export default function OnboardingPage() {
     <motion.div key="step1" className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
       <div>
         <h2 className="text-2xl font-black text-slate-900 mb-1">Choose your username</h2>
-        <p className="text-slate-500 text-sm">This is how people will find you on MEET.</p>
+        <p className="text-slate-500 text-sm">This is how people will find and tag you across MEET.</p>
       </div>
       <div className="relative">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">@</span>
-        <input className="meet-input pl-8" placeholder="yourname" defaultValue="ian.kariuki" />
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">@</span>
+        <input
+          className="meet-input pl-8"
+          placeholder="yourname"
+          value={username}
+          onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s+/g, ''))}
+        />
       </div>
-      <p className="text-xs text-slate-400">Letters, numbers and underscores only. Min. 3 characters.</p>
+      <p className="text-xs text-slate-500 font-medium">Letters, numbers, dots and underscores only. Min. 3 characters.</p>
     </motion.div>,
 
     // Step 2: Profile picture
@@ -92,7 +157,7 @@ export default function OnboardingPage() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <img src="/avatars/ian.jpg" alt="Ian Kariuki" className="w-full h-full object-cover" />
+          <img src="/avatars/ian.jpg" alt={`${firstName} ${lastName}`} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-black/20 hover:bg-black/40 transition-colors flex items-center justify-center">
             <Camera size={24} className="text-white drop-shadow" />
           </div>
@@ -100,7 +165,7 @@ export default function OnboardingPage() {
             <span className="text-blue-600 text-lg font-bold">+</span>
           </div>
         </motion.div>
-        <p className="text-sm font-semibold text-slate-700">Photo set as Ian Kariuki</p>
+        <p className="text-sm font-semibold text-slate-700">Photo verified for {firstName} {lastName}</p>
         <button className="text-xs text-blue-600 font-semibold hover:underline">Change photo</button>
       </div>
     </motion.div>,
@@ -109,7 +174,7 @@ export default function OnboardingPage() {
     <motion.div key="step3" className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
       <div>
         <h2 className="text-2xl font-black text-slate-900 mb-1">Tell us about yourself</h2>
-        <p className="text-slate-500 text-sm">A short bio helps people understand who you are.</p>
+        <p className="text-slate-500 text-sm">A short bio helps members understand who you are and what you do.</p>
       </div>
       <div>
         <textarea
@@ -120,7 +185,12 @@ export default function OnboardingPage() {
           maxLength={200}
           className="meet-input resize-none"
         />
-        <p className="text-xs text-slate-400 text-right mt-1">{bio.length}/200</p>
+        <div className="flex justify-between items-center text-xs mt-1.5">
+          <span className={bio.trim().length < 10 ? 'text-amber-600 font-medium' : 'text-emerald-600 font-semibold'}>
+            {bio.trim().length < 10 ? `Minimum 10 characters required (${bio.trim().length}/10)` : 'Bio meets requirements'}
+          </span>
+          <span className="text-slate-400">{bio.length}/200</span>
+        </div>
       </div>
     </motion.div>,
 
@@ -136,6 +206,7 @@ export default function OnboardingPage() {
           return (
             <motion.button
               key={interest}
+              type="button"
               onClick={() => toggleInterest(interest)}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-full border text-xs font-semibold transition-all duration-200 ${
                 selected
@@ -151,9 +222,11 @@ export default function OnboardingPage() {
           )
         })}
       </div>
-      {selectedInterests.length > 0 && (
-        <p className="text-xs text-blue-600 font-semibold">{selectedInterests.length} selected</p>
-      )}
+      <div className="flex items-center justify-between text-xs pt-1">
+        <span className={selectedInterests.length >= 3 ? 'text-blue-600 font-semibold' : 'text-amber-600 font-medium'}>
+          {selectedInterests.length} selected (minimum 3 required)
+        </span>
+      </div>
     </motion.div>,
 
     // Step 5: Location
@@ -173,7 +246,7 @@ export default function OnboardingPage() {
           />
         </div>
       </div>
-      <p className="text-xs text-slate-400">We only store your city, not your exact street address.</p>
+      <p className="text-xs text-slate-500">We only store your general city or region, never your exact street address.</p>
     </motion.div>,
 
     // Step 6: Looking for
@@ -188,6 +261,7 @@ export default function OnboardingPage() {
           return (
             <motion.button
               key={id}
+              type="button"
               onClick={() => toggleLookingFor(id)}
               className={`w-full flex items-center gap-3 p-3.5 rounded-xl border text-sm font-semibold transition-all duration-200 text-left ${
                 selected
@@ -213,9 +287,9 @@ export default function OnboardingPage() {
       {/* Header */}
       <header className="px-6 py-4 flex items-center justify-between border-b border-slate-200">
         <MeetLogo size="sm" />
-        <button onClick={() => router.push('/discover')} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-900 transition-colors">
-          <X size={14} /> Skip
-        </button>
+        <span className="text-xs font-semibold text-slate-500">
+          Account Setup
+        </span>
       </header>
 
       {/* Progress bar */}
@@ -237,10 +311,23 @@ export default function OnboardingPage() {
             {steps[step]}
           </AnimatePresence>
 
+          {/* Validation Feedback Warning if Incomplete */}
+          {!currentStepValidation.valid && currentStepValidation.hint && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold flex items-center gap-2"
+            >
+              <span className="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0" />
+              <span>{currentStepValidation.hint}</span>
+            </motion.div>
+          )}
+
           {/* Navigation */}
-          <div className="flex items-center gap-3 mt-8">
+          <div className="flex items-center gap-3 mt-6">
             {step > 0 && (
               <motion.button
+                type="button"
                 onClick={() => setStep((s) => s - 1)}
                 className="btn-outline px-5 py-3 font-semibold text-sm bg-white text-slate-700 border border-slate-300 hover:bg-slate-50"
                 whileTap={{ scale: 0.97 }}
@@ -250,9 +337,10 @@ export default function OnboardingPage() {
             )}
 
             <motion.button
-              onClick={step === TOTAL_STEPS - 1 ? handleFinish : () => setStep((s) => s + 1)}
-              disabled={loading || (step === 4 && selectedInterests.length < 3)}
-              className="btn-blue flex-1 justify-center py-3.5 font-bold text-sm"
+              type="button"
+              onClick={handleNext}
+              disabled={loading || !currentStepValidation.valid}
+              className="btn-blue flex-1 justify-center py-3.5 font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed"
               whileTap={{ scale: 0.97 }}
             >
               {loading ? (
@@ -267,10 +355,6 @@ export default function OnboardingPage() {
               )}
             </motion.button>
           </div>
-
-          {step === 4 && selectedInterests.length < 3 && (
-            <p className="text-center text-xs text-slate-400 mt-3">Select at least 3 interests to continue</p>
-          )}
         </div>
       </div>
     </div>

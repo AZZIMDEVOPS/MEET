@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { BadgeCheck, MapPin, Calendar, Users, Globe, Edit3, X, Check } from 'lucide-react'
+import { BadgeCheck, MapPin, Calendar, Users, Globe, Edit3, X, Check, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 import { DEMO_EVENTS, DEMO_COMMUNITIES } from '@/lib/demo-data'
 import { formatNumber } from '@/lib/utils'
@@ -16,7 +16,8 @@ export default function ProfilePage() {
     first_name: 'Ian',
     last_name: 'Kariuki',
     avatar_url: '/avatars/ian.jpg',
-    bio: 'Lead Product Architect @ ReGNL | Building MEET for Africa & beyond | Nairobi, Kenya | Tech builder, hiker & coffee enthusiast.',
+    cover_url: null,
+    bio: 'Lead Product Architect @ ReGNL | Building intelligent platforms | Design systems & scalable cloud engines | Nairobi, Kenya',
     city: 'Nairobi',
     country: 'Kenya',
     is_verified: true,
@@ -31,14 +32,34 @@ export default function ProfilePage() {
   const [editName, setEditName] = useState(profile.full_name)
   const [editBio, setEditBio] = useState(profile.bio)
   const [editCity, setEditCity] = useState(profile.city)
+  const [editError, setEditError] = useState<string | null>(null)
+
+  const isProfileValid = Boolean(
+    editName.trim().length >= 2 &&
+    editCity.trim().length >= 2 &&
+    editBio.trim().length >= 10
+  )
 
   function saveProfile(e: React.FormEvent) {
     e.preventDefault()
+    setEditError(null)
+    if (editName.trim().length < 2) {
+      setEditError('Full name must be at least 2 characters.')
+      return
+    }
+    if (editCity.trim().length < 2) {
+      setEditError('City must be at least 2 characters.')
+      return
+    }
+    if (editBio.trim().length < 10) {
+      setEditError('Bio must be at least 10 characters.')
+      return
+    }
     setProfile((prev) => ({
       ...prev,
-      full_name: editName,
-      bio: editBio,
-      city: editCity,
+      full_name: editName.trim(),
+      bio: editBio.trim(),
+      city: editCity.trim(),
     }))
     setIsEditing(false)
   }
@@ -187,34 +208,52 @@ export default function ProfilePage() {
               </button>
             </div>
             <form onSubmit={saveProfile} className="space-y-4">
+              {editError && (
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold flex items-center gap-2">
+                  <AlertTriangle size={15} className="flex-shrink-0 text-red-500" />
+                  <span>{editError}</span>
+                </div>
+              )}
               <div>
                 <label className="block text-xs text-slate-700 font-semibold mb-1">Full Name</label>
                 <input
                   type="text"
                   value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
+                  onChange={(e) => { setEditName(e.target.value); setEditError(null) }}
                   className="meet-input"
                   required
                 />
+                {editName.trim().length > 0 && editName.trim().length < 2 && (
+                  <p className="text-[11px] text-amber-600 mt-1">Full name must be at least 2 characters.</p>
+                )}
               </div>
               <div>
                 <label className="block text-xs text-slate-700 font-semibold mb-1">City</label>
                 <input
                   type="text"
                   value={editCity}
-                  onChange={(e) => setEditCity(e.target.value)}
+                  onChange={(e) => { setEditCity(e.target.value); setEditError(null) }}
                   className="meet-input"
                   required
                 />
+                {editCity.trim().length > 0 && editCity.trim().length < 2 && (
+                  <p className="text-[11px] text-amber-600 mt-1">City must be at least 2 characters.</p>
+                )}
               </div>
               <div>
                 <label className="block text-xs text-slate-700 font-semibold mb-1">Bio</label>
                 <textarea
                   value={editBio}
-                  onChange={(e) => setEditBio(e.target.value)}
+                  onChange={(e) => { setEditBio(e.target.value); setEditError(null) }}
                   rows={3}
                   className="meet-input resize-none"
+                  required
                 />
+                <div className="flex justify-between items-center text-xs mt-1">
+                  <span className={editBio.trim().length < 10 ? 'text-amber-600 font-medium' : 'text-emerald-600 font-semibold'}>
+                    {editBio.trim().length < 10 ? `Min. 10 characters required (${editBio.trim().length}/10)` : 'Bio meets requirements'}
+                  </span>
+                </div>
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button
@@ -226,7 +265,8 @@ export default function ProfilePage() {
                 </button>
                 <button
                   type="submit"
-                  className="btn-blue py-2 px-5 text-xs font-semibold flex items-center gap-1.5"
+                  disabled={!isProfileValid}
+                  className="btn-blue py-2 px-5 text-xs font-semibold flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Check size={14} /> Save Changes
                 </button>

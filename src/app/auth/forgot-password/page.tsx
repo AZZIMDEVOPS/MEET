@@ -67,7 +67,12 @@ export default function ForgotPasswordPage() {
                 <label className="block text-xs font-semibold text-slate-700 mb-2 uppercase tracking-wider">Email</label>
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="meet-input" required />
               </div>
-              <motion.button type="submit" disabled={loading} className="btn-blue w-full justify-center py-3.5 font-bold text-sm" whileTap={{ scale: 0.98 }}>
+              <motion.button
+                type="submit"
+                disabled={loading || !isValidEmail(email.trim())}
+                className="btn-blue w-full justify-center py-3.5 font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                whileTap={{ scale: 0.98 }}
+              >
                 {loading ? <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Sending...</span> : 'Send reset link'}
               </motion.button>
             </form>

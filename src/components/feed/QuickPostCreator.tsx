@@ -37,7 +37,7 @@ export function QuickPostCreator({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!content.trim()) return
+    if (content.trim().length < 3) return
 
     setIsPosting(true)
 
@@ -255,7 +255,7 @@ export function QuickPostCreator({
 
             <button
               type="submit"
-              disabled={!content.trim() || isPosting}
+              disabled={content.trim().length < 3 || isPosting}
               className="btn-blue py-2 px-4 text-xs font-bold flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
             >
               {isPosting ? (

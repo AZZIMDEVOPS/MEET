@@ -58,14 +58,30 @@ export default function SignupPage() {
   }
 
   function validateStep1() {
-    if (!form.firstName.trim()) { setError('Please enter your first name.'); return false }
-    if (!form.lastName.trim()) { setError('Please enter your last name.'); return false }
+    if (form.firstName.trim().length < 2) { setError('First name must be at least 2 characters.'); return false }
+    if (form.lastName.trim().length < 2) { setError('Last name must be at least 2 characters.'); return false }
     if (!form.username || !isValidUsername(form.username)) {
       setError('Username must be 3-30 characters (letters, numbers, underscores).')
       return false
     }
     return true
   }
+
+  const isStep0Valid = Boolean(
+    form.email &&
+    isValidEmail(form.email) &&
+    form.password &&
+    form.password.length >= 8 &&
+    form.dob &&
+    ((Date.now() - new Date(form.dob).getTime()) / (1000 * 60 * 60 * 24 * 365.25) >= 13)
+  )
+
+  const isStep1Valid = Boolean(
+    form.firstName.trim().length >= 2 &&
+    form.lastName.trim().length >= 2 &&
+    form.username &&
+    isValidUsername(form.username)
+  )
 
   async function handleNext() {
     setError(null)
@@ -248,7 +264,13 @@ export default function SignupPage() {
                 />
               </div>
 
-              <motion.button onClick={handleNext} className="btn-blue w-full justify-center py-3.5 font-bold text-sm" whileTap={{ scale: 0.98 }}>
+              <motion.button
+                type="button"
+                onClick={handleNext}
+                disabled={!isStep0Valid || loading}
+                className="btn-blue w-full justify-center py-3.5 font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                whileTap={{ scale: 0.98 }}
+              >
                 Continue <ArrowRight size={16} />
               </motion.button>
 
@@ -285,7 +307,13 @@ export default function SignupPage() {
                 </div>
                 <p className="text-[10px] text-slate-400 mt-1">3-30 characters. Letters, numbers and underscores only.</p>
               </div>
-              <motion.button onClick={handleNext} disabled={loading} className="btn-blue w-full justify-center py-3.5 font-bold text-sm" whileTap={{ scale: 0.98 }}>
+              <motion.button
+                type="button"
+                onClick={handleNext}
+                disabled={!isStep1Valid || loading}
+                className="btn-blue w-full justify-center py-3.5 font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                whileTap={{ scale: 0.98 }}
+              >
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
