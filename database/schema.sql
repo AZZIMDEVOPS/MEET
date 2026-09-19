@@ -9,10 +9,10 @@ CREATE EXTENSION IF NOT EXISTS "pg_trgm"; -- For full-text search
 -- ─── PROFILES ────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS profiles (
   id              UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  username        TEXT UNIQUE NOT NULL CHECK (username ~* '^[a-zA-Z0-9_]{3,30}$'),
-  full_name       TEXT NOT NULL,
-  first_name      TEXT NOT NULL,
-  last_name       TEXT NOT NULL,
+  username        TEXT UNIQUE NOT NULL CHECK (username ~* '^[a-zA-Z0-9._]{3,30}$'),
+  full_name       TEXT,
+  first_name      TEXT,
+  last_name       TEXT,
   avatar_url      TEXT,
   cover_url       TEXT,
   bio             TEXT CHECK (char_length(bio) <= 500),
@@ -343,19 +343,30 @@ CREATE INDEX IF NOT EXISTS idx_communities_search ON communities USING gin(to_ts
 
 -- Auto-create profile after signup
 CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER 
+LANGUAGE plpgsql 
+SECURITY DEFINER 
+SET search_path = public
+AS $$
 BEGIN
-  INSERT INTO profiles (id, username, full_name, first_name, last_name)
+  INSERT INTO public.profiles (id, username, full_name, first_name, last_name)
   VALUES (
     NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'username', 'user_' || substr(NEW.id::TEXT, 1, 8)),
+    LOWER(COALESCE(
+      NEW.raw_user_meta_data->>'username', 
+      'user_' || substr(REPLACE(NEW.id::TEXT, '-', ''), 1, 8)
+    )),
     COALESCE(NEW.raw_user_meta_data->>'full_name', 'New User'),
     COALESCE(NEW.raw_user_meta_data->>'first_name', 'New'),
     COALESCE(NEW.raw_user_meta_data->>'last_name', 'User')
-  );
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    username = EXCLUDED.username,
+    full_name = EXCLUDED.full_name,
+    updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 CREATE OR REPLACE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
@@ -402,6 +413,9 @@ ALTER TABLE adult_matches ENABLE ROW LEVEL SECURITY;
 -- Profiles: public read, own write
 DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON profiles;
 CREATE POLICY "Public profiles are viewable by everyone" ON profiles FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
+CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
 DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
