@@ -3,7 +3,7 @@
  * Realistic seed data centered around African creators, founders and professionals majorly from Nairobi, Kenya.
  */
 
-import type { Profile, Event, Community, Activity, Place, Notification } from '@/types'
+import type { Profile, Event, Community, Activity, Place, Notification, Post } from '@/types'
 
 // --- PROFILES ---
 export const DEMO_PROFILES: Profile[] = [
@@ -959,3 +959,203 @@ export const DEMO_NOTIFICATIONS: Notification[] = [
     actor: DEMO_PROFILES[8],
   },
 ]
+
+// --- POSTS (Real-time Feed from Connections) ---
+export const DEMO_POSTS: Post[] = [
+  {
+    id: 'post-1',
+    author_id: 'p2',
+    author: DEMO_PROFILES[1], // Kwame Mensah
+    content: "Morning light hitting the canopy at Karura Forest today was pure magic. We wrapped our sunrise walk with 24 photographers from the Nairobi community. The creative energy in this city is unmatched right now! 📸🇰🇪",
+    location: "Karura Forest Reserve, Nairobi",
+    category: "Photography",
+    likes_count: 142,
+    comments_count: 18,
+    shares_count: 24,
+    created_at: new Date(Date.now() - 12 * 60 * 1000).toISOString(), // 12m ago
+    is_liked: false,
+    is_saved: false,
+    tags: ['NairobiPhotography', 'KaruraForest', 'CreativesKE'],
+    event_link: {
+      id: 'e2',
+      title: 'Karura Forest Golden Hour Photography Walk',
+      date: 'Sunday • 6:30 AM',
+      venue: 'Karura Forest Gate A'
+    },
+    comments: [
+      {
+        id: 'c1',
+        post_id: 'post-1',
+        author_id: 'p1',
+        author: DEMO_PROFILES[0], // Amara Wanjiku
+        content: "The lighting in the canopy shots is stunning Kwame! Next time I'm bringing the UI design team along.",
+        created_at: new Date(Date.now() - 9 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'c2',
+        post_id: 'post-1',
+        author_id: 'p6',
+        author: DEMO_PROFILES[5], // Brian Kipkemboi
+        content: "Saw you guys on the 10km trail! Looked like an awesome session.",
+        created_at: new Date(Date.now() - 4 * 60 * 1000).toISOString()
+      }
+    ]
+  },
+  {
+    id: 'post-2',
+    author_id: 'p3',
+    author: DEMO_PROFILES[2], // Sadia Ibrahim
+    content: "Big milestone for PayAfrica today! We just crossed 100,000 active cross-border merchant transactions across East Africa. Huge shoutout to the tech ecosystem in Nairobi and all our local partners in Upper Hill and Westlands.",
+    location: "Upper Hill Financial District, Nairobi",
+    category: "Business",
+    likes_count: 289,
+    comments_count: 34,
+    shares_count: 51,
+    created_at: new Date(Date.now() - 34 * 60 * 1000).toISOString(), // 34m ago
+    is_liked: true,
+    is_saved: true,
+    tags: ['FintechAfrica', 'PayAfrica', 'SiliconSavannah'],
+    event_link: {
+      id: 'e3',
+      title: 'Silicon Savannah Founders & Angels Pitch Night',
+      date: 'Thursday • 6:00 PM',
+      venue: 'The Alchemist Westlands'
+    },
+    comments: [
+      {
+        id: 'c3',
+        post_id: 'post-2',
+        author_id: 'p4',
+        author: DEMO_PROFILES[3], // David Kamau
+        content: "Huge congratulations Sadia and team! Proud of what you're building out of Nairobi.",
+        created_at: new Date(Date.now() - 25 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'c4',
+        post_id: 'post-2',
+        author_id: 'p8',
+        author: DEMO_PROFILES[7], // Tariq Otieno
+        content: "Incredible growth trajectory. Looking forward to our AI fraud detection pilot next month.",
+        created_at: new Date(Date.now() - 15 * 60 * 1000).toISOString()
+      }
+    ]
+  },
+  {
+    id: 'post-3',
+    author_id: 'p1',
+    author: DEMO_PROFILES[0], // Amara Wanjiku
+    content: "Just wrapped up our design sprint at iHub Kilimani on mobile design systems tailored specifically for low-bandwidth environments. Designing for the next 100 million African smartphone users requires stripping away the noise and focusing on pure utility and clarity.",
+    location: "iHub Nairobi, Senteu Plaza",
+    category: "Technology",
+    likes_count: 195,
+    comments_count: 22,
+    shares_count: 16,
+    created_at: new Date(Date.now() - 65 * 60 * 1000).toISOString(), // ~1h ago
+    is_liked: false,
+    is_saved: false,
+    tags: ['ProductDesign', 'iHubNairobi', 'DesignSystems'],
+    comments: [
+      {
+        id: 'c5',
+        post_id: 'post-3',
+        author_id: 'p7',
+        author: DEMO_PROFILES[6], // Faith Chebet
+        content: "This is crucial for our farmers using ShambaPulse in rural Kenya. Simplicity saves lives and livelihoods.",
+        created_at: new Date(Date.now() - 40 * 60 * 1000).toISOString()
+      }
+    ]
+  },
+  {
+    id: 'post-4',
+    author_id: 'p6',
+    author: DEMO_PROFILES[5], // Brian Kipkemboi
+    content: "Sunday morning run squad! We clocked 21km on the scenic Ngong Hills ridge line. Elevation was tough, but the view of the Great Rift Valley at 2,460m makes every single stride worth it. Who is joining our next trail run?",
+    location: "Ngong Hills Forest Reserve",
+    category: "Fitness",
+    likes_count: 210,
+    comments_count: 27,
+    shares_count: 9,
+    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2h ago
+    is_liked: false,
+    is_saved: false,
+    tags: ['NgongHills', 'TrailRunningKE', 'NairobiFitness'],
+    event_link: {
+      id: 'e4',
+      title: 'Sunday Morning Trail Hike & Run — Ngong Hills',
+      date: 'Sunday • 7:00 AM',
+      venue: 'Ngong Hills Forest Gate'
+    },
+    comments: []
+  },
+  {
+    id: 'post-5',
+    author_id: 'p4',
+    author: DEMO_PROFILES[3], // David Kamau
+    content: "Deploying our high-throughput payment settlement microservices on Kubernetes today at Safaricom HQ. Handling over 30,000 transactions per second during peak hours with sub-50ms latency. The scale of financial infrastructure built right here in Kenya is world-class.",
+    location: "Safaricom HQ, Ngong Road",
+    category: "Technology",
+    likes_count: 312,
+    comments_count: 41,
+    shares_count: 38,
+    created_at: new Date(Date.now() - 3.5 * 60 * 60 * 1000).toISOString(), // 3.5h ago
+    is_liked: false,
+    is_saved: false,
+    tags: ['CloudNative', 'Safaricom', 'MPesa', 'DevOpsKE'],
+    comments: []
+  },
+  {
+    id: 'post-6',
+    author_id: 'p5',
+    author: DEMO_PROFILES[4], // Aisha Mwangi
+    content: "Sound check ready at GoDown Arts Centre! Tonight's set blends traditional Nyatiti strings with deep Afro-house synths and live vocals. Can't wait to see everyone who RSVP'd on MEET!",
+    location: "GoDown Arts Centre, Industrial Area",
+    category: "Music",
+    likes_count: 178,
+    comments_count: 19,
+    shares_count: 12,
+    created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5h ago
+    is_liked: true,
+    is_saved: false,
+    tags: ['AfroHouse', 'LiveMusicKE', 'GoDownArts'],
+    event_link: {
+      id: 'e5',
+      title: 'Afro-Acoustic Live Jam Session — GoDown Arts',
+      date: 'Friday • 7:30 PM',
+      venue: 'GoDown Arts Centre'
+    },
+    comments: []
+  },
+  {
+    id: 'post-7',
+    author_id: 'p9',
+    author: DEMO_PROFILES[8], // Sharon Achieng
+    content: "Mentoring 40 brilliant young women at our Nairobi Women in Tech hackathon today at Westlands! The solutions they are building in healthtech, agritech and climate resilience are mind-blowing. The future of African tech is female. 💪🇰🇪",
+    location: "Westlands, Nairobi",
+    category: "Community",
+    likes_count: 345,
+    comments_count: 38,
+    shares_count: 47,
+    created_at: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
+    is_liked: false,
+    is_saved: false,
+    tags: ['WomenInTech', 'NairobiWomenInTech', 'DiversityInTech'],
+    comments: []
+  },
+  {
+    id: 'post-8',
+    author_id: 'p11',
+    author: DEMO_PROFILES[10], // Juma Omondi
+    content: "Fresh batch of washed SL28 from Nyeri just roasted at our Karen lab. Jasmine floral aromas with blackcurrant acidity. Come through this weekend for a complimentary cupping session!",
+    location: "Java House Roastery, Karen",
+    category: "Food & Drink",
+    likes_count: 154,
+    comments_count: 15,
+    shares_count: 8,
+    created_at: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
+    is_liked: false,
+    is_saved: false,
+    tags: ['SpecialtyCoffee', 'KenyaCoffee', 'KarenNairobi'],
+    comments: []
+  }
+]
+

@@ -55,18 +55,29 @@ export interface Post {
   id: string;
   author_id: string;
   content: string;
-  post_type: 'text' | 'image' | 'video' | 'audio' | 'poll';
-  visibility: 'public' | 'connections' | 'private';
+  post_type?: 'text' | 'image' | 'video' | 'audio' | 'poll';
+  visibility?: 'public' | 'connections' | 'private';
   likes_count: number;
   comments_count: number;
   shares_count: number;
-  saves_count: number;
+  saves_count?: number;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
   author?: Profile;
   media?: PostMedia[];
+  media_url?: string | null;
+  location?: string | null;
+  category?: string | null;
+  tags?: string[];
+  comments?: Comment[];
   is_liked?: boolean;
   is_saved?: boolean;
+  event_link?: {
+    id: string;
+    title: string;
+    date: string;
+    venue: string;
+  } | null;
 }
 
 export interface PostMedia {
@@ -83,7 +94,7 @@ export interface Comment {
   post_id: string;
   author_id: string;
   content: string;
-  likes_count: number;
+  likes_count?: number;
   created_at: string;
   author?: Profile;
 }
@@ -181,6 +192,8 @@ export interface Place {
   interested_count: number;
   created_at: string;
 }
+
+export type PostComment = Comment;
 
 export interface Conversation {
   id: string;

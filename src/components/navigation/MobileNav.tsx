@@ -3,12 +3,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Home, Search, Plus, MessageCircle, User } from 'lucide-react'
+import { Home, Radio, Plus, MessageCircle, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const mobileNavItems = [
-  { href: '/discover', label: 'Home', icon: Home },
-  { href: '/explore', label: 'Explore', icon: Search },
+  { href: '/feed', label: 'Feed', icon: Radio },
+  { href: '/discover', label: 'Discover', icon: Home },
   { href: '/create', label: 'Create', icon: Plus, isCreate: true },
   { href: '/messages', label: 'Messages', icon: MessageCircle },
   { href: '/profile', label: 'Profile', icon: User },

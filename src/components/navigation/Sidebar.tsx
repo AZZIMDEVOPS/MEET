@@ -14,11 +14,13 @@ import {
   Settings,
   Sparkles,
   Home,
+  Radio,
 } from 'lucide-react'
 import { MeetLogo } from '@/components/ui/MeetLogo'
 import { cn } from '@/lib/utils'
 
 const navItems = [
+  { href: '/feed', label: 'Feed', icon: Radio },
   { href: '/discover', label: 'Discover', icon: Home },
   { href: '/explore', label: 'Explore', icon: Search },
   { href: '/people', label: 'People', icon: Users },

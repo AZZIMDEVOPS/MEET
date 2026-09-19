@@ -466,3 +466,50 @@ INSERT INTO interests (name, slug, icon, category, color) VALUES
   ('Books', 'books', '📖', 'education', '#8B5CF6'),
   ('Wellness', 'wellness', '🧘', 'lifestyle', '#34D399')
 ON CONFLICT (name) DO NOTHING;
+
+-- ─── POSTS & REAL-TIME FEED ──────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS posts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  author_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  media_url TEXT,
+  location TEXT,
+  category TEXT,
+  tags TEXT[] DEFAULT '{}',
+  likes_count INT DEFAULT 0,
+  comments_count INT DEFAULT 0,
+  shares_count INT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS post_comments (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  author_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS post_likes (
+  post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (post_id, user_id)
+);
+
+ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE post_comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE post_likes ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Posts are viewable by everyone" ON posts FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can create posts" ON posts FOR INSERT WITH CHECK (auth.uid() = author_id);
+CREATE POLICY "Users can update own posts" ON posts FOR UPDATE USING (auth.uid() = author_id);
+CREATE POLICY "Users can delete own posts" ON posts FOR DELETE USING (auth.uid() = author_id);
+
+CREATE POLICY "Comments are viewable by everyone" ON post_comments FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can comment" ON post_comments FOR INSERT WITH CHECK (auth.uid() = author_id);
+
+CREATE POLICY "Likes are viewable by everyone" ON post_likes FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can like" ON post_likes FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can unlike" ON post_likes FOR DELETE USING (auth.uid() = user_id);
