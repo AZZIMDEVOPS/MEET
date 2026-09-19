@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { MeetLogo } from '@/components/ui/MeetLogo'
+import Image from 'next/image'
 import { ArrowRight, Sparkles } from 'lucide-react'
 
 interface SplashScreenProps {
@@ -53,38 +53,50 @@ export function SplashScreen({
 
       {/* Center Brand Identity */}
       <div className="flex flex-col items-center text-center max-w-sm px-4">
-        {/* Animated Brand Logo */}
+        {/* Animated Official Brand Logo */}
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-4"
+          initial={{ scale: 0.8, opacity: 0, y: 15 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="relative mb-5"
         >
-          <MeetLogo size="xl" />
+          <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-3xl overflow-hidden shadow-2xl border-2 border-slate-100 bg-slate-950 ring-8 ring-blue-50/80">
+            <Image
+              src="/meet-logo.jpg"
+              alt="MEET Logo"
+              width={160}
+              height={160}
+              priority
+              className="w-full h-full object-cover"
+            />
+          </div>
         </motion.div>
 
-        {/* Product Tagline */}
-        <motion.p
-          className="text-lg sm:text-xl font-bold text-blue-600 tracking-wide mt-1"
-          initial={{ opacity: 0, y: 10 }}
+        {/* Brand Name & Tagline */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25, duration: 0.4 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+          className="flex flex-col items-center"
         >
-          People. Places. Experiences.
-        </motion.p>
+          <div className="flex items-center gap-1">
+            <span className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
+              MEET
+            </span>
+            <span className="w-3 h-3 bg-blue-600 rounded-full mb-1 inline-block" />
+          </div>
 
-        {/* Brand Mission */}
-        <motion.p
-          className="text-xs sm:text-sm text-slate-700 mt-2 font-semibold tracking-wider uppercase"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.45, duration: 0.4 }}
-        >
-          Making Art Out Of Technology
-        </motion.p>
+          <p className="text-base sm:text-lg font-bold text-blue-600 tracking-wide mt-2">
+            People. Places. Experiences.
+          </p>
+
+          <p className="text-xs text-slate-500 font-semibold tracking-wider uppercase mt-1">
+            Making Art Out Of Technology
+          </p>
+        </motion.div>
 
         {/* Smooth Loading Progress Line */}
-        <div className="w-44 h-1.5 bg-slate-100 rounded-full mt-10 overflow-hidden border border-slate-200">
+        <div className="w-48 h-1.5 bg-slate-100 rounded-full mt-8 overflow-hidden border border-slate-200">
           <motion.div
             className="h-full bg-blue-600 rounded-full"
             initial={{ width: '0%' }}
