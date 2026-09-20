@@ -173,6 +173,31 @@ export default function FeedPage() {
             ))}
           </div>
 
+          {/* 9:16 Video Stream Highlight Banner */}
+          {activeFilter === 'Videos' && (
+            <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white shadow-xl shadow-blue-600/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-blue-400/30">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md flex-shrink-0">
+                  <Video size={20} className="text-white" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-black text-sm tracking-wide">9:16 Vertical Video Stream</h3>
+                    <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+                  </div>
+                  <p className="text-xs text-blue-100 mt-0.5">
+                    Full-screen vertical reels from creators in Nairobi. Tap &apos;Fit Screen&apos; or click any reel for 100% immersive mode.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-mono font-bold">
+                  9:16 FIT SCREEN
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Posts List */}
           <div className="space-y-4">
             {filteredPosts.map((post) => (

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Heart,
@@ -14,6 +14,13 @@ import {
   Sparkles,
   BadgeCheck,
   Clock,
+  Maximize2,
+  Volume2,
+  VolumeX,
+  Play,
+  Pause,
+  X,
+  Music,
 } from 'lucide-react'
 import Link from 'next/link'
 import type { Post, PostComment } from '@/types'
@@ -39,6 +46,48 @@ export function PostCard({
   const [newComment, setNewComment] = useState('')
   const [copied, setCopied] = useState(false)
   const [attendingEvent, setAttendingEvent] = useState(false)
+
+  // 9:16 Video Player State
+  const isVideo = post.post_type === 'video' || post.media_url?.endsWith('.mp4') || post.media_url?.includes('video')
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const fullScreenVideoRef = useRef<HTMLVideoElement>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [isMuted, setIsMuted] = useState(true)
+  const [progress, setProgress] = useState(0)
+  const [isFullScreen, setIsFullScreen] = useState(false)
+  const [showPlayIcon, setShowPlayIcon] = useState(false)
+
+  function togglePlay(e?: React.MouseEvent) {
+    e?.stopPropagation()
+    const vid = isFullScreen ? fullScreenVideoRef.current : videoRef.current
+    if (!vid) return
+    if (vid.paused) {
+      vid.play()
+      setIsPlaying(true)
+    } else {
+      vid.pause()
+      setIsPlaying(false)
+    }
+    setShowPlayIcon(true)
+    setTimeout(() => setShowPlayIcon(false), 800)
+  }
+
+  function toggleMute(e?: React.MouseEvent) {
+    e?.stopPropagation()
+    setIsMuted((prev) => {
+      const next = !prev
+      if (videoRef.current) videoRef.current.muted = next
+      if (fullScreenVideoRef.current) fullScreenVideoRef.current.muted = next
+      return next
+    })
+  }
+
+  function handleTimeUpdate(e: React.SyntheticEvent<HTMLVideoElement>) {
+    const target = e.currentTarget
+    if (target.duration) {
+      setProgress((target.currentTime / target.duration) * 100)
+    }
+  }
 
   function handleLike() {
     if (liked) {
@@ -191,29 +240,111 @@ export function PostCard({
         {post.content}
       </p>
 
-      {/* Attached Media (Video Feed or Photo) */}
+      {/* Attached Media (9:16 Video Feed or Photo) */}
       {post.media_url && (
-        <div className="mb-4 rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 shadow-sm relative group">
-          {post.post_type === 'video' || post.media_url.endsWith('.mp4') || post.media_url.includes('video') ? (
-            <div className="relative w-full aspect-video bg-black flex items-center justify-center">
+        <div className="mb-4">
+          {isVideo ? (
+            <div className="relative w-full max-w-[420px] mx-auto aspect-[9/16] max-h-[78vh] sm:max-h-[82vh] rounded-3xl overflow-hidden bg-black shadow-2xl border border-slate-800 group select-none">
+              {/* Blurred background backdrop */}
               <video
                 src={post.media_url}
-                controls
+                muted={isMuted}
+                loop
                 playsInline
-                preload="metadata"
-                className="w-full h-full max-h-[480px] object-contain rounded-2xl"
+                aria-hidden
+                className="absolute inset-0 w-full h-full object-cover filter blur-xl opacity-40 scale-125 pointer-events-none"
               />
-              <div className="absolute top-3 left-3 pointer-events-none flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-white text-[10px] font-bold border border-white/20 shadow-md">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                <span>VIDEO FEED</span>
+
+              {/* Main 9:16 Video */}
+              <video
+                ref={videoRef}
+                src={post.media_url}
+                loop
+                playsInline
+                muted={isMuted}
+                onTimeUpdate={handleTimeUpdate}
+                onClick={togglePlay}
+                className="relative z-10 w-full h-full object-cover cursor-pointer"
+              />
+
+              {/* Top Floating Bar */}
+              <div className="absolute top-3 inset-x-3 z-20 flex items-center justify-between pointer-events-none">
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/70 backdrop-blur-md text-white text-[11px] font-black border border-white/20 shadow-lg tracking-wider">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  <span>9:16 REEL</span>
+                </div>
+
+                <div className="flex items-center gap-2 pointer-events-auto">
+                  <button
+                    onClick={toggleMute}
+                    aria-label={isMuted ? 'Unmute' : 'Mute'}
+                    className="w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 backdrop-blur-md text-white flex items-center justify-center border border-white/20 transition-all hover:scale-105"
+                  >
+                    {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+                  </button>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setIsFullScreen(true)
+                    }}
+                    aria-label="Full Screen 9:16"
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-600/90 hover:bg-blue-600 text-white text-xs font-bold shadow-lg backdrop-blur-md transition-all hover:scale-105"
+                  >
+                    <Maximize2 size={13} />
+                    <span>Fit Screen</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Center Play/Pause Pulsing Icon */}
+              <div
+                onClick={togglePlay}
+                className="absolute inset-0 z-15 flex items-center justify-center cursor-pointer"
+              >
+                {(!isPlaying || showPlayIcon) && (
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    className="w-16 h-16 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-2xl"
+                  >
+                    {isPlaying ? (
+                      <Pause size={28} className="fill-white" />
+                    ) : (
+                      <Play size={28} className="fill-white translate-x-0.5" />
+                    )}
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Bottom Quick Controls & Progress Bar */}
+              <div className="absolute bottom-0 inset-x-0 z-20 p-3 pt-8 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none">
+                <div className="flex items-center justify-between text-white/90 text-xs font-semibold mb-2 px-1">
+                  <span className="flex items-center gap-1.5 text-[11px] drop-shadow">
+                    <Music size={12} className="text-blue-400 animate-pulse" />
+                    Original Audio • Nairobi
+                  </span>
+                  <span className="text-[10px] bg-white/20 backdrop-blur-md px-2 py-0.5 rounded-full font-mono">
+                    9:16 HD
+                  </span>
+                </div>
+
+                {/* Progress bar */}
+                <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-blue-500 rounded-full transition-all duration-100"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
               </div>
             </div>
           ) : (
-            <div className="relative w-full max-h-[450px] overflow-hidden bg-slate-100 flex items-center justify-center">
+            <div className="relative w-full max-h-[480px] rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center">
               <img
                 src={post.media_url}
                 alt={post.content.slice(0, 40)}
-                className="w-full h-auto max-h-[450px] object-cover transition-transform duration-300 group-hover:scale-[1.01]"
+                className="w-full h-auto max-h-[480px] object-cover transition-transform duration-300 group-hover:scale-[1.01]"
               />
             </div>
           )}
@@ -399,6 +530,198 @@ export function PostCard({
                 </button>
               </div>
             </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Immersive 9:16 Full Screen Reel Modal */}
+      <AnimatePresence>
+        {isFullScreen && isVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[120] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-0 md:p-6 select-none"
+            onClick={() => setIsFullScreen(false)}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setIsFullScreen(false)}
+              className="absolute top-4 right-4 z-50 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-transform hover:scale-110"
+              aria-label="Close Fullscreen"
+            >
+              <X size={20} />
+            </button>
+
+            {/* 9:16 Reel Player Container */}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full h-full md:max-w-[440px] md:h-[95vh] aspect-[9/16] bg-black md:rounded-3xl overflow-hidden shadow-2xl border border-white/10 flex flex-col justify-between"
+            >
+              {/* Background ambient video */}
+              <video
+                src={post.media_url}
+                muted={isMuted}
+                loop
+                playsInline
+                aria-hidden
+                className="absolute inset-0 w-full h-full object-cover filter blur-2xl opacity-50 scale-125 pointer-events-none"
+              />
+
+              {/* Main Vertical 9:16 Video */}
+              <video
+                ref={fullScreenVideoRef}
+                src={post.media_url}
+                autoPlay
+                loop
+                playsInline
+                muted={isMuted}
+                onTimeUpdate={handleTimeUpdate}
+                onClick={togglePlay}
+                className="relative z-10 w-full h-full object-cover cursor-pointer"
+              />
+
+              {/* Fullscreen Top Header */}
+              <div className="absolute top-4 inset-x-4 z-30 flex items-center justify-between pointer-events-none">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md text-white text-xs font-black border border-white/20">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+                  <span>MEET REEL 9:16</span>
+                </div>
+
+                <div className="flex items-center gap-2 pointer-events-auto">
+                  <button
+                    onClick={toggleMute}
+                    className="w-10 h-10 rounded-full bg-black/60 hover:bg-black/90 backdrop-blur-md text-white flex items-center justify-center border border-white/20 transition-all hover:scale-105"
+                  >
+                    {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Center Play Indicator */}
+              <div
+                onClick={togglePlay}
+                className="absolute inset-0 z-20 flex items-center justify-center cursor-pointer pointer-events-auto"
+              >
+                {(!isPlaying || showPlayIcon) && (
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    className="w-20 h-20 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-2xl"
+                  >
+                    {isPlaying ? (
+                      <Pause size={36} className="fill-white" />
+                    ) : (
+                      <Play size={36} className="fill-white translate-x-0.5" />
+                    )}
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Right Vertical Action Bar (Reels style) */}
+              <div className="absolute right-3 bottom-24 z-30 flex flex-col items-center gap-4 pointer-events-auto">
+                <button
+                  onClick={handleLike}
+                  className="flex flex-col items-center gap-1 text-white group"
+                >
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md border transition-all ${
+                      liked
+                        ? 'bg-red-500 border-red-400 text-white shadow-lg shadow-red-500/50 scale-110'
+                        : 'bg-black/50 border-white/20 text-white hover:bg-black/70'
+                    }`}
+                  >
+                    <Heart size={22} className={liked ? 'fill-current' : ''} />
+                  </div>
+                  <span className="text-[11px] font-bold drop-shadow">
+                    {formatNumber(likesCount)}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setShowComments(!showComments)}
+                  className="flex flex-col items-center gap-1 text-white group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-black/50 hover:bg-black/70 border border-white/20 flex items-center justify-center backdrop-blur-md transition-all">
+                    <MessageCircle size={22} />
+                  </div>
+                  <span className="text-[11px] font-bold drop-shadow">
+                    {formatNumber(comments.length)}
+                  </span>
+                </button>
+
+                <button
+                  onClick={handleShare}
+                  className="flex flex-col items-center gap-1 text-white group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-black/50 hover:bg-black/70 border border-white/20 flex items-center justify-center backdrop-blur-md transition-all">
+                    {copied ? <Check size={20} className="text-emerald-400" /> : <Share2 size={22} />}
+                  </div>
+                  <span className="text-[11px] font-bold drop-shadow">
+                    {copied ? 'Copied' : formatNumber(post.shares_count)}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setSaved(!saved)}
+                  className="flex flex-col items-center gap-1 text-white group"
+                >
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md border transition-all ${
+                    saved
+                      ? 'bg-blue-600 border-blue-400 text-white shadow-lg'
+                      : 'bg-black/50 border-white/20 text-white hover:bg-black/70'
+                  }`}>
+                    <Bookmark size={20} className={saved ? 'fill-current' : ''} />
+                  </div>
+                  <span className="text-[11px] font-bold drop-shadow">Save</span>
+                </button>
+              </div>
+
+              {/* Bottom Details Overlay */}
+              <div className="absolute bottom-0 inset-x-0 z-30 p-4 pt-16 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none">
+                <div className="max-w-[85%] space-y-2 pointer-events-auto">
+                  <div className="flex items-center gap-2.5">
+                    <img
+                      src={author.avatar_url ?? '/avatars/ian.jpg'}
+                      alt={author.full_name}
+                      className="w-10 h-10 rounded-full object-cover ring-2 ring-blue-500"
+                    />
+                    <div>
+                      <h4 className="font-bold text-white text-sm leading-tight flex items-center gap-1">
+                        {author.full_name}
+                        {author.is_verified && <BadgeCheck size={14} className="text-blue-400" />}
+                      </h4>
+                      <p className="text-xs text-slate-300">@{author.username}</p>
+                    </div>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-white/95 leading-relaxed font-normal line-clamp-2">
+                    {post.content}
+                  </p>
+
+                  {post.location && (
+                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-md text-white text-[11px] font-semibold">
+                      <MapPin size={11} className="text-blue-400" />
+                      <span>{post.location}</span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2 text-white/80 text-xs font-medium pt-1">
+                    <Music size={12} className="text-blue-400 animate-spin" />
+                    <span className="truncate">Ambient Nairobi Soundscape • Original Sound</span>
+                  </div>
+                </div>
+
+                {/* Scrubber Bar */}
+                <div className="w-full h-1 bg-white/20 rounded-full mt-3 overflow-hidden">
+                  <div
+                    className="h-full bg-blue-500 rounded-full transition-all duration-100"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

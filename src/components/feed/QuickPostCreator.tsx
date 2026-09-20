@@ -258,14 +258,14 @@ export function QuickPostCreator({
         {mediaAttachment && (
           <div className="relative mb-3 rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 flex items-center justify-center">
             {mediaAttachment.type === 'video' ? (
-              <div className="w-full relative aspect-video flex items-center justify-center">
+              <div className="w-full max-w-[280px] mx-auto relative aspect-[9/16] max-h-80 flex items-center justify-center rounded-2xl overflow-hidden bg-black shadow-md">
                 <video
                   src={mediaAttachment.url}
                   controls
-                  className="w-full h-full max-h-64 object-contain"
+                  className="w-full h-full object-cover"
                 />
                 <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-black/70 text-white text-[10px] font-bold flex items-center gap-1.5 backdrop-blur-md border border-white/20">
-                  <Film size={12} className="text-red-400" /> Video attached
+                  <Film size={12} className="text-red-400" /> 9:16 Video attached
                 </div>
               </div>
             ) : (
