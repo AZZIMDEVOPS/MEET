@@ -309,7 +309,12 @@
 
   .scrollbar-none {
     -ms-overflow-style: none;
-    scrollbar-width: none;
+  }
+
+  @supports (scrollbar-width: none) {
+    .scrollbar-none {
+      scrollbar-width: none;
+    }
   }
 
   .scrollbar-none::-webkit-scrollbar {
