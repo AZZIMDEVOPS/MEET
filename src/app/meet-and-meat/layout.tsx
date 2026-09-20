@@ -40,7 +40,9 @@ export default function MeetAndMeatLayout({ children }: { children: React.ReactN
         >
           {/* Logo */}
           <div className="text-center mb-8">
-            <MeetLogo size="md" />
+            <div className="flex justify-center">
+              <MeetLogo size="md" align="center" />
+            </div>
             <div className="mt-4 flex items-center justify-center gap-2">
               <span className="px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-sm font-bold">
                 MEET & MEAT

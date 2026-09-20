@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 import { ArrowRight, Sparkles } from 'lucide-react'
+import { MeetLogo } from '@/components/ui/MeetLogo'
 
 interface SplashScreenProps {
   onFinish?: () => void
@@ -46,57 +46,28 @@ export function SplashScreen({
           onClick={() => onFinish?.()}
           className="text-xs font-bold text-slate-500 hover:text-blue-600 transition-colors flex items-center gap-1 py-1.5 px-3 rounded-lg hover:bg-slate-100"
         >
-          <span>Skip to Login</span>
+          <span>Skip to Feed</span>
           <ArrowRight size={13} />
         </button>
       </div>
 
-      {/* Center Brand Identity */}
+      {/* Center Brand Identity (Without bg) */}
       <div className="flex flex-col items-center text-center max-w-sm px-4">
-        {/* Animated Official Brand Logo */}
+        {/* Animated Official Brand Logo without background */}
         <motion.div
-          initial={{ scale: 0.8, opacity: 0, y: 15 }}
+          initial={{ scale: 0.85, opacity: 0, y: 15 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="relative mb-5"
+          className="relative mb-6"
         >
-          <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-3xl overflow-hidden shadow-2xl border-2 border-slate-100 bg-slate-950 ring-8 ring-blue-50/80">
-            <Image
-              src="/meet-logo.jpg"
-              alt="MEET Logo"
-              width={160}
-              height={160}
-              priority
-              className="w-full h-full object-cover"
-            />
-          </div>
-        </motion.div>
-
-        {/* Brand Name & Tagline */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
-          className="flex flex-col items-center"
-        >
-          <div className="flex items-center gap-1">
-            <span className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
-              MEET
-            </span>
-            <span className="w-3 h-3 bg-blue-600 rounded-full mb-1 inline-block" />
-          </div>
-
-          <p className="text-base sm:text-lg font-bold text-blue-600 tracking-wide mt-2">
-            People. Places. Experiences.
-          </p>
-
-          <p className="text-xs text-slate-500 font-semibold tracking-wider uppercase mt-1">
+          <MeetLogo size="hero" align="center" showTagline />
+          <p className="text-xs text-slate-400 font-semibold tracking-wider uppercase mt-3">
             Making Art Out Of Technology
           </p>
         </motion.div>
 
         {/* Smooth Loading Progress Line */}
-        <div className="w-48 h-1.5 bg-slate-100 rounded-full mt-8 overflow-hidden border border-slate-200">
+        <div className="w-48 h-1.5 bg-slate-100 rounded-full mt-4 overflow-hidden border border-slate-200">
           <motion.div
             className="h-full bg-blue-600 rounded-full"
             initial={{ width: '0%' }}
@@ -106,12 +77,12 @@ export function SplashScreen({
         </div>
 
         <motion.p
-          className="text-[11px] text-slate-600 mt-3 font-medium"
+          className="text-[11px] text-slate-500 mt-3 font-medium"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          Connecting to Nairobi network...
+          Loading your visual feed...
         </motion.p>
       </div>
 

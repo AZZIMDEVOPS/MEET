@@ -16,7 +16,7 @@ export function TopBar({ title, showSearch = true, notificationCount = 2 }: TopB
     <header className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">
       <div className="flex items-center justify-between px-4 py-3">
         {/* Logo or Title */}
-        <Link href="/discover">
+        <Link href="/feed">
           {title ? (
             <h1 className="text-lg font-bold text-slate-900">{title}</h1>
           ) : (

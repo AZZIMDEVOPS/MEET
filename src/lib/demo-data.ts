@@ -1019,7 +1019,7 @@ export const DEMO_POSTS: Post[] = [
     author: DEMO_PROFILES[1], // Kwame Mensah
     content: "Morning light hitting the canopy at Karura Forest today was pure magic. We wrapped our sunrise walk with 24 photographers from the Nairobi community. The creative energy in this city is unmatched right now! 📸🇰🇪",
     post_type: 'image',
-    media_url: '/meet-logo.jpg',
+    media_url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1200&auto=format&fit=crop&q=80',
     location: "Karura Forest Reserve, Nairobi",
     category: "Photography",
     likes_count: 142,
@@ -1059,6 +1059,8 @@ export const DEMO_POSTS: Post[] = [
     author_id: 'p3',
     author: DEMO_PROFILES[2], // Sadia Ibrahim
     content: "Big milestone for PayAfrica today! We just crossed 100,000 active cross-border merchant transactions across East Africa. Huge shoutout to the tech ecosystem in Nairobi and all our local partners in Upper Hill and Westlands.",
+    post_type: 'image',
+    media_url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop&q=80',
     location: "Upper Hill Financial District, Nairobi",
     category: "Business",
     likes_count: 289,
@@ -1098,6 +1100,8 @@ export const DEMO_POSTS: Post[] = [
     author_id: 'p1',
     author: DEMO_PROFILES[0], // Amara Wanjiku
     content: "Just wrapped up our design sprint at iHub Kilimani on mobile design systems tailored specifically for low-bandwidth environments. Designing for the next 100 million African smartphone users requires stripping away the noise and focusing on pure utility and clarity.",
+    post_type: 'image',
+    media_url: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=1200&auto=format&fit=crop&q=80',
     location: "iHub Nairobi, Senteu Plaza",
     category: "Technology",
     likes_count: 195,
@@ -1123,6 +1127,8 @@ export const DEMO_POSTS: Post[] = [
     author_id: 'p6',
     author: DEMO_PROFILES[5], // Brian Kipkemboi
     content: "Sunday morning run squad! We clocked 21km on the scenic Ngong Hills ridge line. Elevation was tough, but the view of the Great Rift Valley at 2,460m makes every single stride worth it. Who is joining our next trail run?",
+    post_type: 'image',
+    media_url: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=1200&auto=format&fit=crop&q=80',
     location: "Ngong Hills Forest Reserve",
     category: "Fitness",
     likes_count: 210,
@@ -1145,6 +1151,8 @@ export const DEMO_POSTS: Post[] = [
     author_id: 'p4',
     author: DEMO_PROFILES[3], // David Kamau
     content: "Deploying our high-throughput payment settlement microservices on Kubernetes today at Safaricom HQ. Handling over 30,000 transactions per second during peak hours with sub-50ms latency. The scale of financial infrastructure built right here in Kenya is world-class.",
+    post_type: 'image',
+    media_url: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80',
     location: "Safaricom HQ, Ngong Road",
     category: "Technology",
     likes_count: 312,
@@ -1161,6 +1169,8 @@ export const DEMO_POSTS: Post[] = [
     author_id: 'p5',
     author: DEMO_PROFILES[4], // Aisha Mwangi
     content: "Sound check ready at GoDown Arts Centre! Tonight's set blends traditional Nyatiti strings with deep Afro-house synths and live vocals. Can't wait to see everyone who RSVP'd on MEET!",
+    post_type: 'image',
+    media_url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1200&auto=format&fit=crop&q=80',
     location: "GoDown Arts Centre, Industrial Area",
     category: "Music",
     likes_count: 178,
@@ -1183,6 +1193,8 @@ export const DEMO_POSTS: Post[] = [
     author_id: 'p9',
     author: DEMO_PROFILES[8], // Sharon Achieng
     content: "Mentoring 40 brilliant young women at our Nairobi Women in Tech hackathon today at Westlands! The solutions they are building in healthtech, agritech and climate resilience are mind-blowing. The future of African tech is female. 💪🇰🇪",
+    post_type: 'image',
+    media_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1200&auto=format&fit=crop&q=80',
     location: "Westlands, Nairobi",
     category: "Community",
     likes_count: 345,

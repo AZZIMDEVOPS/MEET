@@ -159,7 +159,7 @@ export default function ProfilePage() {
       },
       content: 'Official MEET Brand Design System is live. Excited to share what we have been crafting with the community!',
       post_type: 'image',
-      media_url: '/meet-logo.jpg',
+      media_url: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1200&auto=format&fit=crop&q=80',
       location: 'Kilimani, Nairobi',
       category: 'Technology',
       tags: ['designsystems', 'meetapp', 'regnl'],

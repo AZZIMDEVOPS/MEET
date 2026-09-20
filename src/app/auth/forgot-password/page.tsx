@@ -41,7 +41,9 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 relative overflow-hidden">
       <motion.div className="relative z-10 w-full max-w-md" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="text-center mb-8">
-          <Link href="/" className="inline-block"><MeetLogo size="lg" /></Link>
+          <Link href="/" className="inline-block mb-3">
+            <MeetLogo size="lg" align="center" />
+          </Link>
           <h1 className="text-2xl font-black text-slate-900 mt-4">Reset your password</h1>
           <p className="text-slate-500 text-sm mt-1">We will send you a reset link</p>
         </div>

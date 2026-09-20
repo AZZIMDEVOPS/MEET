@@ -176,7 +176,7 @@ export default function SignupPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <MeetLogo size="lg" />
+            <MeetLogo size="lg" align="center" />
           </Link>
           <h1 className="text-2xl font-black text-slate-900 mt-4">Join MEET</h1>
           <p className="text-slate-500 text-sm mt-1">Discover people, places and experiences</p>

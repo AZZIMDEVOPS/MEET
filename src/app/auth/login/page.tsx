@@ -13,7 +13,7 @@ import { isValidEmail } from '@/lib/utils'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [showSplash, setShowSplash] = useState(true)
+  const [showSplash, setShowSplash] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -137,7 +137,7 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-block mb-3">
-              <MeetLogo size="lg" />
+              <MeetLogo size="lg" align="center" />
             </Link>
             <h1 className="text-2xl font-black text-slate-900 mt-2">Welcome back</h1>
             <p className="text-slate-500 text-sm mt-1">Sign in to continue your journey</p>

@@ -49,7 +49,7 @@ export function Sidebar({ profile }: SidebarProps) {
   return (
     <aside className="hidden lg:flex flex-col w-64 h-screen fixed left-0 top-0 bg-white border-r border-slate-200 z-40 px-4 py-6">
       {/* Logo */}
-      <Link href="/discover" className="px-2 mb-8">
+      <Link href="/feed" className="px-2 mb-8">
         <MeetLogo size="md" color="text-blue-600" showTagline={false} />
       </Link>
 
