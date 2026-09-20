@@ -191,6 +191,35 @@ export function PostCard({
         {post.content}
       </p>
 
+      {/* Attached Media (Video Feed or Photo) */}
+      {post.media_url && (
+        <div className="mb-4 rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 shadow-sm relative group">
+          {post.post_type === 'video' || post.media_url.endsWith('.mp4') || post.media_url.includes('video') ? (
+            <div className="relative w-full aspect-video bg-black flex items-center justify-center">
+              <video
+                src={post.media_url}
+                controls
+                playsInline
+                preload="metadata"
+                className="w-full h-full max-h-[480px] object-contain rounded-2xl"
+              />
+              <div className="absolute top-3 left-3 pointer-events-none flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-white text-[10px] font-bold border border-white/20 shadow-md">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                <span>VIDEO FEED</span>
+              </div>
+            </div>
+          ) : (
+            <div className="relative w-full max-h-[450px] overflow-hidden bg-slate-100 flex items-center justify-center">
+              <img
+                src={post.media_url}
+                alt={post.content.slice(0, 40)}
+                className="w-full h-auto max-h-[450px] object-cover transition-transform duration-300 group-hover:scale-[1.01]"
+              />
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Tags */}
       {post.tags && post.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-3">

@@ -8,6 +8,7 @@ import {
   Users,
   RefreshCw,
   ArrowUp,
+  Video,
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -19,6 +20,7 @@ import { QuickPostCreator } from '@/components/feed/QuickPostCreator'
 
 const FEED_FILTERS = [
   'All Connections',
+  'Videos',
   'Technology',
   'Photography',
   'Business',
@@ -84,6 +86,9 @@ export default function FeedPage() {
 
   const filteredPosts = posts.filter((post) => {
     if (activeFilter === 'All Connections') return true
+    if (activeFilter === 'Videos') {
+      return post.post_type === 'video' || post.media_url?.endsWith('.mp4') || post.category === 'Videos' || post.tags?.includes('videofeed')
+    }
     return post.category?.toLowerCase() === activeFilter.toLowerCase()
   })
 
@@ -154,13 +159,16 @@ export default function FeedPage() {
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 ${
                   activeFilter === filter
                     ? 'bg-blue-600 text-white shadow-sm'
                     : 'bg-white border border-slate-200 text-slate-700 hover:text-slate-900 hover:border-slate-300 shadow-sm'
                 }`}
               >
-                {filter}
+                {filter === 'Videos' && (
+                  <Video size={13} className={activeFilter === 'Videos' ? 'text-white' : 'text-red-500'} />
+                )}
+                <span>{filter}</span>
               </button>
             ))}
           </div>

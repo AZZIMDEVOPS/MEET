@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import { MapPin, Tag, Send, Check, X } from 'lucide-react'
+import { MapPin, Tag, Send, Check, X, Camera, Video, Film } from 'lucide-react'
 import type { Post } from '@/types'
 
 interface QuickPostCreatorProps {
@@ -35,10 +35,42 @@ export function QuickPostCreator({
   const [showTopicPicker, setShowTopicPicker] = useState(false)
   const [isPosting, setIsPosting] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [mediaAttachment, setMediaAttachment] = useState<{
+    type: 'image' | 'video'
+    url: string
+    name: string
+  } | null>(null)
+
+  const photoInputRef = useRef<HTMLInputElement>(null)
+  const videoInputRef = useRef<HTMLInputElement>(null)
+
+  function handlePhotoSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const url = URL.createObjectURL(file)
+    setMediaAttachment({
+      type: 'image',
+      url,
+      name: file.name,
+    })
+    e.target.value = ''
+  }
+
+  function handleVideoSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const url = URL.createObjectURL(file)
+    setMediaAttachment({
+      type: 'video',
+      url,
+      name: file.name,
+    })
+    e.target.value = ''
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (content.trim().length < 3) return
+    if (content.trim().length < 3 && !mediaAttachment) return
 
     setIsPosting(true)
 
@@ -69,16 +101,18 @@ export function QuickPostCreator({
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       },
-      content: content.trim(),
-      location: location || 'Nairobi, Kenya',
-      category: category || 'General',
+      content: content.trim() || (mediaAttachment?.type === 'video' ? 'Shared a video clip' : 'Shared a photo'),
+      post_type: mediaAttachment ? mediaAttachment.type : 'text',
+      media_url: mediaAttachment ? mediaAttachment.url : null,
+      location: location || null,
+      category: category || (mediaAttachment?.type === 'video' ? 'Videos' : null),
+      tags: category ? [category.toLowerCase()] : mediaAttachment?.type === 'video' ? ['videofeed', 'nairobi'] : [],
       likes_count: 0,
       comments_count: 0,
       shares_count: 0,
       created_at: new Date().toISOString(),
       is_liked: false,
       is_saved: false,
-      tags: category ? [category] : [],
       comments: [],
     }
 
@@ -87,6 +121,7 @@ export function QuickPostCreator({
       setContent('')
       setLocation('')
       setCategory('')
+      setMediaAttachment(null)
       setShowLocationPicker(false)
       setShowTopicPicker(false)
       setIsPosting(false)
@@ -219,9 +254,78 @@ export function QuickPostCreator({
           )}
         </AnimatePresence>
 
+        {/* Media Preview Box */}
+        {mediaAttachment && (
+          <div className="relative mb-3 rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 flex items-center justify-center">
+            {mediaAttachment.type === 'video' ? (
+              <div className="w-full relative aspect-video flex items-center justify-center">
+                <video
+                  src={mediaAttachment.url}
+                  controls
+                  className="w-full h-full max-h-64 object-contain"
+                />
+                <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-black/70 text-white text-[10px] font-bold flex items-center gap-1.5 backdrop-blur-md border border-white/20">
+                  <Film size={12} className="text-red-400" /> Video attached
+                </div>
+              </div>
+            ) : (
+              <div className="w-full max-h-64 flex items-center justify-center bg-slate-100">
+                <img
+                  src={mediaAttachment.url}
+                  alt="Upload preview"
+                  className="w-full max-h-64 object-cover"
+                />
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => setMediaAttachment(null)}
+              className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
+
+        {/* Hidden File Inputs */}
+        <input
+          type="file"
+          ref={photoInputRef}
+          accept="image/*"
+          onChange={handlePhotoSelect}
+          className="hidden"
+        />
+        <input
+          type="file"
+          ref={videoInputRef}
+          accept="video/*"
+          onChange={handleVideoSelect}
+          className="hidden"
+        />
+
         {/* Action bar */}
         <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <button
+              type="button"
+              onClick={() => photoInputRef.current?.click()}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+              title="Add photo from phone/computer"
+            >
+              <Camera size={14} className="text-blue-600" />
+              <span className="hidden sm:inline">Photo</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => videoInputRef.current?.click()}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+              title="Add video from phone/computer"
+            >
+              <Video size={14} className="text-blue-600" />
+              <span className="hidden sm:inline">Video Feed</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setShowLocationPicker(!showLocationPicker)}
@@ -258,7 +362,7 @@ export function QuickPostCreator({
 
             <button
               type="submit"
-              disabled={content.trim().length < 3 || isPosting}
+              disabled={(content.trim().length < 2 && !mediaAttachment) || isPosting}
               className="btn-blue py-2 px-4 text-xs font-bold flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
             >
               {isPosting ? (

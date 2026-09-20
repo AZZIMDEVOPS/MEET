@@ -963,10 +963,63 @@ export const DEMO_NOTIFICATIONS: Notification[] = [
 // --- POSTS (Real-time Feed from Connections) ---
 export const DEMO_POSTS: Post[] = [
   {
+    id: 'post-video-1',
+    author_id: 'p2',
+    author: DEMO_PROFILES[1], // Kwame Mensah
+    content: "Nairobi Golden Hour Reel 🎥✨ Watch the sunset over Karura Forest and the city skyline. Filmed in 4K during our creative community photowalk. Turn your audio up for the ambient Nairobi soundscape!",
+    post_type: 'video',
+    media_url: 'https://media.w3.org/2010/05/sintel/trailer.mp4',
+    location: "Karura Forest Reserve, Nairobi",
+    category: "Photography",
+    likes_count: 538,
+    comments_count: 64,
+    shares_count: 82,
+    created_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5m ago
+    is_liked: true,
+    is_saved: false,
+    tags: ['NairobiReel', 'VideoFeed', 'KaruraForest', 'EastAfricaCreatives'],
+    event_link: {
+      id: 'e2',
+      title: 'Karura Forest Golden Hour Photography Walk',
+      date: 'Sunday • 6:30 AM',
+      venue: 'Karura Forest Gate A'
+    },
+    comments: [
+      {
+        id: 'cv1',
+        post_id: 'post-video-1',
+        author_id: 'p1',
+        author: DEMO_PROFILES[0], // Amara Wanjiku
+        content: "This video quality is insane! The color grading on the acacia trees is perfection.",
+        created_at: new Date(Date.now() - 3 * 60 * 1000).toISOString()
+      }
+    ]
+  },
+  {
+    id: 'post-video-2',
+    author_id: 'p6',
+    author: DEMO_PROFILES[5], // Brian Kipkemboi
+    content: "Summit view at 2,460 meters! 🏃‍♂️⛰️ Quick video clip of the morning mist rolling over the Great Rift Valley from the Ngong Hills trail. Next group hike is this Saturday!",
+    post_type: 'video',
+    media_url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+    location: "Ngong Hills Ridge, Kajiado",
+    category: "Fitness",
+    likes_count: 389,
+    comments_count: 42,
+    shares_count: 31,
+    created_at: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
+    is_liked: false,
+    is_saved: true,
+    tags: ['NgongHills', 'HikingKE', 'VideoFeed', 'NairobiOutdoors'],
+    comments: []
+  },
+  {
     id: 'post-1',
     author_id: 'p2',
     author: DEMO_PROFILES[1], // Kwame Mensah
     content: "Morning light hitting the canopy at Karura Forest today was pure magic. We wrapped our sunrise walk with 24 photographers from the Nairobi community. The creative energy in this city is unmatched right now! 📸🇰🇪",
+    post_type: 'image',
+    media_url: '/meet-logo.jpg',
     location: "Karura Forest Reserve, Nairobi",
     category: "Photography",
     likes_count: 142,
