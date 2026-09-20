@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Image, MapPin, Tag, Send, Check, Sparkles, X } from 'lucide-react'
+import Image from 'next/image'
+import { MapPin, Tag, Send, Check, X } from 'lucide-react'
 import type { Post } from '@/types'
 
 interface QuickPostCreatorProps {
@@ -98,9 +99,11 @@ export function QuickPostCreator({
     <div className="meet-card p-4 sm:p-5 mb-6 shadow-sm border border-slate-200 bg-white">
       <form onSubmit={handleSubmit}>
         <div className="flex items-start gap-3 mb-3">
-          <img
+          <Image
             src={currentUserAvatar}
             alt={currentUserName}
+            width={40}
+            height={40}
             className="w-10 h-10 rounded-full object-cover ring-2 ring-blue-500/20 flex-shrink-0 mt-0.5"
           />
           <div className="flex-1">

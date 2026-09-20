@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, ArrowLeft, Camera, MapPin, Check, Users, Globe, Calendar, Briefcase, Activity, Sparkles, Heart } from 'lucide-react'
 import { MeetLogo } from '@/components/ui/MeetLogo'
@@ -195,7 +196,7 @@ export default function OnboardingPage() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <img src="/avatars/ian.jpg" alt={`${firstName} ${lastName}`} className="w-full h-full object-cover" />
+          <Image src="/avatars/ian.jpg" alt={`${firstName} ${lastName}`} width={112} height={112} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-black/20 hover:bg-black/40 transition-colors flex items-center justify-center">
             <Camera size={24} className="text-white drop-shadow" />
           </div>

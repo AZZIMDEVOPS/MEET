@@ -4,21 +4,18 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Radio,
-  Sparkles,
   TrendingUp,
   Users,
-  MapPin,
   RefreshCw,
-  Bell,
   ArrowUp,
 } from 'lucide-react'
 import Link from 'next/link'
-import { DEMO_POSTS, DEMO_PROFILES, DEMO_EVENTS } from '@/lib/demo-data'
+import Image from 'next/image'
+import { DEMO_POSTS, DEMO_PROFILES } from '@/lib/demo-data'
 import type { Post } from '@/types'
 import { PostCard } from '@/components/feed/PostCard'
 import { StoriesCarousel } from '@/components/feed/StoriesCarousel'
 import { QuickPostCreator } from '@/components/feed/QuickPostCreator'
-import { ProfileCard } from '@/components/people/ProfileCard'
 
 const FEED_FILTERS = [
   'All Connections',
@@ -259,9 +256,11 @@ export default function FeedPage() {
                     href={`/people/${profile.username}`}
                     className="flex items-center gap-2.5 min-w-0"
                   >
-                    <img
+                    <Image
                       src={profile.avatar_url ?? '/avatars/faith.jpg'}
                       alt={profile.full_name}
+                      width={36}
+                      height={36}
                       className="w-9 h-9 rounded-full object-cover ring-1 ring-slate-200 flex-shrink-0"
                     />
                     <div className="min-w-0">
